@@ -95,7 +95,7 @@ begin
   buffer := '';
   if (aRequest is TFormDataRequest) and (CompareText(aRequest.getHeader(ContentType), 'mulipart/form-data') = 0) then
   begin
-    bundary := (aRequest as TFormDataRequest).CurrentBundary + '_file_upload';
+    bundary := (aRequest as TFormDataRequest).CurrentBundary + '_boundary';
 
     encoded := CloneRequest(aRequest, THttpRequest);
     encoded.Method := 'POST';
