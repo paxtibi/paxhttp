@@ -7,6 +7,15 @@ unit http;
 {$warn 5023 off : no warning about unused units}
 interface
 
+uses
+  LazarusPackageIntf;
+
 implementation
 
+procedure Register;
+begin
+end;
+
+initialization
+  RegisterPackage('http', @Register);
 end.
