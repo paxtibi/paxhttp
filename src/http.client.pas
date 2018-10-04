@@ -230,6 +230,7 @@ begin
   FTimeOut := -1;
   FKeepConnection := True;
   FTerminated := False;
+  FDebug := False;
   FPostProcessList := TMiddlewareList.Create;
   FPreprocessList := TMiddlewareList.Create;
 
