@@ -48,13 +48,11 @@ type
   private
     FAjaxMiddleware: TMiddleware;
     FAuthorization: TAuthorizationMiddleware;
-    FDebug: boolean;
     FKeepAlive: boolean;
     FProxy: TAuthorizationMiddleware;
     FRedirect: TMiddleware;
     function GetAjax: boolean;
     procedure SetAjax(AValue: boolean);
-    procedure SetDebug(AValue: boolean);
     procedure SetKeepAlive(AValue: boolean);
     procedure SetTimeOut(AValue: int64);
   protected
@@ -96,7 +94,6 @@ type
     procedure addPreProcessMiddleware(aMiddleware: TMiddleware);
     procedure removePostProcessMiddleware(aMiddleware: TMiddleware);
     procedure removePreProcessMiddleware(aMiddleware: TMiddleware);
-    property Debug: boolean read FDebug write SetDebug;
     property KeepAlive: boolean read FKeepAlive write SetKeepAlive;
     property TimeOut: int64 read FTimeOut write SetTimeOut;
 
@@ -230,7 +227,6 @@ begin
   FTimeOut := -1;
   FKeepConnection := True;
   FTerminated := False;
-  FDebug := False;
   FPostProcessList := TMiddlewareList.Create;
   FPreprocessList := TMiddlewareList.Create;
 
@@ -284,21 +280,12 @@ begin
   FTerminated := False;
   if not Terminated then
   begin
-    if FDebug then
-      Writeln(Header);
     FSocket.WriteBuffer(pchar(Header)^, Length(Header));
   end;
   if Assigned(aRequest.Body) and not Terminated then
   begin
     aRequest.Body.Position := 0;
     FSocket.CopyFrom(aRequest.Body, aRequest.Body.Size);
-    if FDebug then
-    begin
-      aRequest.Body.Position := 0;
-      SetLength(Header, aRequest.Body.Size);
-      aRequest.Body.ReadBuffer(Header[1], Length(Header));
-      WriteLn(Header);
-    end;
   end;
 end;
 
@@ -315,7 +302,6 @@ function TDefaultHTTPClient.ReadString(out StringResult: string): boolean;
     r := FSocket.Read(FBuffer[1], ReadBufLen);
     if (r = 0) or Terminated then
       Exit(False);
-    writeln(trim(FBuffer));
     if (r < 0) then
       raise ENetworkReadException.Create(FSocket.LastError);
     if (r < ReadBuflen) then
@@ -385,13 +371,6 @@ begin
     P := Length(S) + 1;
   Result := Copy(S, 1, P - 1);
   Delete(S, 1, P);
-end;
-
-procedure TDefaultHTTPClient.SetDebug(AValue: boolean);
-begin
-  if FDebug = AValue then
-    Exit;
-  FDebug := AValue;
 end;
 
 function TDefaultHTTPClient.GetAjax: boolean;
