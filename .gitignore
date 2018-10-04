@@ -1,3 +1,3 @@
 lib
-./demo/lib
-./demos/bin
+/demos/lib
+/demos/bin
