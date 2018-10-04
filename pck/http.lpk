@@ -8,9 +8,28 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)\"/>
+        <OtherUnitFiles Value="..\src"/>
+        <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
+    <Files Count="4">
+      <Item1>
+        <Filename Value="..\src\http.client.pas"/>
+        <UnitName Value="http.client"/>
+      </Item1>
+      <Item2>
+        <Filename Value="..\src\http.messages.pas"/>
+        <UnitName Value="http.messages"/>
+      </Item2>
+      <Item3>
+        <Filename Value="..\src\http.encoders.pas"/>
+        <UnitName Value="http.encoders"/>
+      </Item3>
+      <Item4>
+        <Filename Value="..\src\http.middlewares.pas"/>
+        <UnitName Value="http.middlewares"/>
+      </Item4>
+    </Files>
     <RequiredPkgs Count="1">
       <Item1>
         <PackageName Value="FCL"/>
@@ -22,5 +41,8 @@
     <PublishOptions>
       <Version Value="2"/>
     </PublishOptions>
+    <CustomOptions Items="ExternHelp" Version="2">
+      <_ExternHelp Items="Count"/>
+    </CustomOptions>
   </Package>
 </CONFIG>

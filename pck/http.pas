@@ -8,6 +8,7 @@ unit http;
 interface
 
 uses
+  http.client, http.messages, http.encoders, http.middlewares, 
   LazarusPackageIntf;
 
 implementation
