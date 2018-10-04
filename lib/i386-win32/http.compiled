@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Compiler Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\bin\i386-win32\fpc.exe" Date="1280924250"/>
+  <Params Value=" -MObjFPC -Scghi -O1 -g -gl -l -vewnhibq -FuC:\programmi\lazarus-1.8-32\packager\units\i386-win32 -FuC:\lavoro\lazarus\projects\shared\http\pck\ -FUC:\lavoro\lazarus\projects\shared\http\lib\i386-win32\ http.pas"/>
+</CONFIG>
