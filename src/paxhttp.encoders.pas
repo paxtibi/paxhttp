@@ -1,11 +1,11 @@
-unit http.encoders;
+unit paxhttp.encoders;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, http.messages;
+  Classes, SysUtils, paxhttp.messages;
 
 type
 

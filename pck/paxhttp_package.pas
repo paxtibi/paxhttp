@@ -2,13 +2,13 @@
   This source is only used to compile and install the package.
  }
 
-unit http;
+unit paxhttp_package;
 
 {$warn 5023 off : no warning about unused units}
 interface
 
 uses
-  http.client, http.messages, http.encoders, http.middlewares, 
+  paxhttp.client, paxhttp.encoders, paxhttp.messages, paxhttp.middlewares, 
   LazarusPackageIntf;
 
 implementation
@@ -18,5 +18,5 @@ begin
 end;
 
 initialization
-  RegisterPackage('http', @Register);
+  RegisterPackage('paxhttp_package', @Register);
 end.

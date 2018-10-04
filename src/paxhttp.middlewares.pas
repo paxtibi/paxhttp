@@ -1,11 +1,11 @@
-unit http.middlewares;
+unit paxhttp.middlewares;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, http.client, http.messages;
+  Classes, SysUtils, paxhttp.client, paxhttp.messages;
 
 type
 
@@ -249,7 +249,7 @@ begin
   setLength(cookieValues, 0);
 
   for h in aResponse.getHeaders do
-    if (CompareText(h.Name, http.messages.SetCookie) = 0) then
+    if (CompareText(h.Name, paxhttp.messages.SetCookie) = 0) then
     begin
       cookieValues := h.Value.Split(';');
       cookies.Add(cookieValues[0]);

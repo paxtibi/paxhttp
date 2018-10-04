@@ -2,8 +2,9 @@
 <CONFIG>
   <Package Version="4">
     <PathDelim Value="\"/>
-    <Name Value="http"/>
+    <Name Value="paxhttp_package"/>
     <Type Value="RunAndDesignTime"/>
+    <Author Value="PaxTibi"/>
     <CompilerOptions>
       <Version Value="11"/>
       <PathDelim Value="\"/>
@@ -12,21 +13,23 @@
         <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
+    <Description Value="HTTP Handler"/>
+    <Version Release="1"/>
     <Files Count="4">
       <Item1>
-        <Filename Value="..\src\http.client.pas"/>
+        <Filename Value="..\src\paxhttp.client.pas"/>
         <UnitName Value="http.client"/>
       </Item1>
       <Item2>
-        <Filename Value="..\src\http.messages.pas"/>
-        <UnitName Value="http.messages"/>
+        <Filename Value="..\src\paxhttp.encoders.pas"/>
+        <UnitName Value="http.encoders"/>
       </Item2>
       <Item3>
-        <Filename Value="..\src\http.encoders.pas"/>
-        <UnitName Value="http.encoders"/>
+        <Filename Value="..\src\paxhttp.messages.pas"/>
+        <UnitName Value="http.messages"/>
       </Item3>
       <Item4>
-        <Filename Value="..\src\http.middlewares.pas"/>
+        <Filename Value="..\src\paxhttp.middlewares.pas"/>
         <UnitName Value="http.middlewares"/>
       </Item4>
     </Files>

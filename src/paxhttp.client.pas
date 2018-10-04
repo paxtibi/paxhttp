@@ -1,10 +1,10 @@
-unit http.client;
+unit paxhttp.client;
 
 {$mode objfpc}{$H+}
 interface
 
 uses
-  Classes, SysUtils, http.messages, http.encoders, ssockets, fgl;
+  Classes, SysUtils, paxhttp.messages, paxhttp.encoders, ssockets, fgl;
 
 const
   ReadBufLen = 1024 * 10;
@@ -107,7 +107,7 @@ type
 implementation
 
 uses
-  base64, http.middlewares
+  base64, paxhttp.middlewares
   {$if not defined(hasamiga)}
   , sslsockets
 {$endif} ;
