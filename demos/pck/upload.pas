@@ -7,9 +7,8 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   Classes,
   SysUtils,
   CustApp,
-  http,
-  http.client,
-  http.messages { you can add units after this };
+  paxhttp.client,
+  paxhttp.messages { you can add units after this };
 
 const
   uploadUrl = 'localhost:9090/test/simpleupload.php';
@@ -37,7 +36,6 @@ type
     FResponse: THttpResponse;
   begin
     client := TDefaultHTTPClient.Create;
-    client.Debug := True;
     FResponse := THttpResponse.Create;
     FFormDataRequest := TFormDataRequest.Create;
     FFormDataRequest.URL.assign(uploadUrl);

@@ -8,6 +8,7 @@
       <Unit0>
         <Filename Value="get.lpr"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <CursorPos X="3" Y="9"/>
         <UsageCount Value="21"/>
         <Loaded Value="True"/>
@@ -28,11 +29,9 @@
       </Unit2>
       <Unit3>
         <Filename Value="..\..\paxhttp\pck\paxhttp_package.pas"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="19" Y="13"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit3>
     </Units>
     <JumpHistory Count="14" HistoryIndex="13">

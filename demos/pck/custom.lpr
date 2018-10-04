@@ -6,8 +6,8 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   cthreads, {$ENDIF} {$ENDIF}
   Classes,
   SysUtils,
-  http.client,
-  http.messages,
+  paxhttp.client,
+  paxhttp.messages,
   CustApp { you can add units after this };
 
 const

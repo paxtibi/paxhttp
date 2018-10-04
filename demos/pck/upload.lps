@@ -9,18 +9,17 @@
         <Filename Value="upload.pas"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="36"/>
-        <CursorPos X="67" Y="43"/>
+        <TopLine Value="35"/>
+        <CursorPos X="67" Y="42"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="..\..\http\src\http.client.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="157"/>
         <CursorPos X="17" Y="180"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit1>
     </Units>
     <JumpHistory Count="1">

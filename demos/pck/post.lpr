@@ -7,8 +7,8 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   Classes,
   SysUtils,
   CustApp,
-  http.client,
-  http.messages { you can add units after this };
+  paxhttp.client,
+  paxhttp.messages { you can add units after this };
 
 const
   url: string = 'http://localhost:9090/test/simpleform.php';
