@@ -15,23 +15,27 @@
     </CompilerOptions>
     <Description Value="HTTP Handler"/>
     <Version Release="1"/>
-    <Files Count="4">
+    <Files Count="5">
       <Item1>
         <Filename Value="..\src\paxhttp.client.pas"/>
-        <UnitName Value="http.client"/>
+        <UnitName Value="paxhttp.client"/>
       </Item1>
       <Item2>
         <Filename Value="..\src\paxhttp.encoders.pas"/>
-        <UnitName Value="http.encoders"/>
+        <UnitName Value="paxhttp.encoders"/>
       </Item2>
       <Item3>
         <Filename Value="..\src\paxhttp.messages.pas"/>
-        <UnitName Value="http.messages"/>
+        <UnitName Value="paxhttp.messages"/>
       </Item3>
       <Item4>
         <Filename Value="..\src\paxhttp.middlewares.pas"/>
-        <UnitName Value="http.middlewares"/>
+        <UnitName Value="paxhttp.middlewares"/>
       </Item4>
+      <Item5>
+        <Filename Value="..\src\paxhttp.server.pas"/>
+        <UnitName Value="ServerApplication"/>
+      </Item5>
     </Files>
     <RequiredPkgs Count="1">
       <Item1>
