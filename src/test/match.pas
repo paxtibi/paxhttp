@@ -21,6 +21,7 @@ type
     procedure TestMathSimpleUrl;
     procedure TestMathSimpleParameter;
     procedure TestMathParameterWithPattern;
+    procedure TestMathMiddleParameterWithPattern;
   end;
 
 implementation
@@ -45,7 +46,7 @@ var
 begin
   for rc in FRouteList do
   begin
-    AssertEquals(rc.urlMatchPattern(testUrl), rc.urlPattern.EndsWith('{param2}'));
+    AssertEquals(rc.urlMatchPattern(testUrl), rc.urlPattern.EndsWith('{param1}'));
   end;
 end;
 
@@ -61,6 +62,18 @@ begin
   end;
 end;
 
+procedure TMatchTest.TestMathMiddleParameterWithPattern;
+const
+  testUrl = '/simple/static/url/param1/otherpath';
+var
+  rc: TRouteContainer;
+begin
+  for rc in FRouteList do
+  begin
+    AssertEquals(rc.urlMatchPattern(testUrl), rc.urlPattern.equals('/simple/static/url/{param1}/otherpath'));
+  end;
+end;
+
 function TMatchTest.createRoute(urlPattern: string): TRouteContainer;
 begin
   result := TRouteContainer.Create;
@@ -72,7 +85,8 @@ begin
   FRouteList := TRouteContainerList.Create(True);
   FRouteList.Add(createRoute('/'));
   FRouteList.Add(createRoute('/simple/static/url'));
-  FRouteList.Add(createRoute('/simple/static/url/with/{param2}'));
+  FRouteList.Add(createRoute('/simple/static/url/with/{param1}'));
+  FRouteList.Add(createRoute('/simple/static/url/{param1}/otherpath'));
   FRouteList.Add(createRoute('/user/{user-id:"[\w\d]*"}'));
 end;
 

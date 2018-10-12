@@ -97,12 +97,34 @@ type
     property Target: TRouteProcedure read FTarget write SetTarget;
   end;
 
+  TCustomSlimHttpApplication = class;
+
+  { TServerMiddleware }
+
+  TServerMiddleware = class
+  private
+    FApplication: TCustomSlimHttpApplication;
+    procedure SetApplication(AValue: TCustomSlimHttpApplication);
+  public
+    constructor Create(anApplication: TCustomSlimHttpApplication);
+    function invoke(ARequest: TRequest; AResponse: TResponse): boolean; virtual;
+    property Application: TCustomSlimHttpApplication read FApplication write SetApplication;
+  end;
+
+  TServerMiddlewareList = specialize TFPGObjectList<TServerMiddleware>;
+
   { TCustomSlimHttpApplication }
 
   TCustomSlimHttpApplication = class(TCustomHTTPApplication)
+  private
+    FSessionPath: string;
+    FSessions: boolean;
+    procedure SetSessionPath(AValue: string);
+    procedure SetSessions(AValue: boolean);
   protected
     FRoutesCriticalSection: TRTLCriticalSection;
     FRoutes: TRouteContainerList;
+    FMiddleware: TServerMiddlewareList;
     function InitializeWebHandler: TWebHandler; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -113,6 +135,8 @@ type
     procedure AddRoute(aMethod, aUrlPattern: string; delegate: IRoute);
     procedure AddRoute(aMethod, aUrlPattern: string; delegate: TRouteMethod);
     function getCandidates(aRequest: TRequest): TRouteContainerList;
+    property SessionPath: string read FSessionPath write SetSessionPath;
+    property Sessions: boolean read FSessions write SetSessions;
   end;
 
   { THTTPServerApplicationHandler }
@@ -123,10 +147,62 @@ type
   published
   end;
 
+  { TSessionMiddleware }
+
+  TSessionMiddleware = class(TServerMiddleware)
+    function invoke(ARequest: TRequest; AResponse: TResponse): boolean; override;
+  end;
+
+procedure defaultFavIcon(aReq: TRequest; aResp: TResponse; args: TStrings);
+
 implementation
 
 const
   RegString = '(\[?\/?\{([\w_][\w\d_-]*|[\w_][\w\d_-]*(:"(.*)"))\}\]?)';
+
+procedure defaultFavIcon(aReq: TRequest; aResp: TResponse; args: TStrings);
+begin
+  aResp.Code := 404;
+  aResp.CodeText := 'Not found';
+  if FileExists('favicon.ico') then
+  begin
+    aResp.Code := 200;
+    aResp.CodeText := 'OK';
+    aResp.ContentStream := TFileStream.Create('favicon.ico', fmOpenRead or fmShareDenyWrite);
+  end;
+end;
+
+{ TSessionMiddleware }
+
+function TSessionMiddleware.invoke(ARequest: TRequest; AResponse: TResponse): boolean;
+var
+  session: TCustomSession;
+begin
+  result := inherited invoke(ARequest, AResponse);
+  if Application.Sessions then
+  begin
+    session := nil;
+  end;
+end;
+
+{ TServerMiddleware }
+
+procedure TServerMiddleware.SetApplication(AValue: TCustomSlimHttpApplication);
+begin
+  if FApplication = AValue then
+    Exit;
+  FApplication := AValue;
+end;
+
+constructor TServerMiddleware.Create(anApplication: TCustomSlimHttpApplication);
+begin
+  FApplication := anApplication;
+end;
+
+function TServerMiddleware.invoke(ARequest: TRequest; AResponse: TResponse): boolean;
+begin
+  result := False;
+end;
 
 { TRouteContainerProcedure }
 
@@ -219,8 +295,6 @@ begin
     PrevPos := 1;
     if Exec(AInputStr) then
       repeat
-        Writeln(MatchLen[4]: 10, ' ', MatchLen[3]: 10, ' ', MatchLen[2]: 10, ' ', MatchLen[1]: 10);
-        Writeln(Match[4]: 10, ' ', Match[3]: 10, ' ', Match[2]: 10, ' ', Match[1]: 10);
         optional := '';
         separator := '/';
         Result += System.Copy(AInputStr, PrevPos, MatchPos[0] - PrevPos);
@@ -258,8 +332,6 @@ begin
   begin
     if Exec(AInputStr) then
       repeat
-        Writeln(MatchLen[4]: 10, ' ', MatchLen[3]: 10, ' ', MatchLen[2]: 10, ' ', MatchLen[1]: 10);
-        Writeln(Match[4]: 10, ' ', Match[3]: 10, ' ', Match[2]: 10, ' ', Match[1]: 10);
         if MatchLen[4] = 0 then
         begin
           Result.add(Match[2]);
@@ -284,6 +356,7 @@ begin
   begin
     delete(result, Pos('#', result), length(result));
   end;
+  result := StringReplace(result, '//', '/', [rfReplaceAll]);
 end;
 
 function TRouteContainer.urlMatchPattern(aUrl: string): boolean;
@@ -323,8 +396,6 @@ begin
       begin
         idx := 0;
         repeat
-          //Writeln(MatchLen[4]: 10, ' ', MatchLen[3]: 10, ' ', MatchLen[2]: 10, ' ', MatchLen[1]: 10);
-          //Writeln(Match[4]: 10, ' ', Match[3]: 10, ' ', Match[2]: 10, ' ', Match[1]: 10);
           result[idx] := result[idx] + '=' + Copy(Match[1], 2, Length(Match[1]));
           idx += 1;
         until not ExecNext;
@@ -361,17 +432,27 @@ var
   cwebapp: TCustomSlimHttpApplication;
   list: TRouteContainerList;
   route: TRouteContainer;
+  middleware: TServerMiddleware;
+  stopProcess: boolean;
 begin
   try
     cwebapp := GetOwner as TCustomSlimHttpApplication;
     list := cwebapp.getCandidates(ARequest);
-    for route in list do
-      route.Execute(ARequest, AResponse);
-    try
-      if list.Count = 0 then
-        inherited HandleRequest(ARequest, AResponse);
-    finally
-      list.Free;
+    stopProcess := False;
+    for middleware in cwebapp.FMiddleware do
+    begin
+      middleware.invoke(ARequest, AResponse);
+    end;
+    if not stopProcess then
+    begin
+      for route in list do
+        route.Execute(ARequest, AResponse);
+      try
+        if list.Count = 0 then
+          inherited HandleRequest(ARequest, AResponse);
+      finally
+        list.Free;
+      end;
     end;
   except
     On E: Exception do
@@ -381,6 +462,20 @@ end;
 
 
 { TCustomSlimHttpApplication }
+
+procedure TCustomSlimHttpApplication.SetSessionPath(AValue: string);
+begin
+  if FSessionPath = AValue then
+    Exit;
+  FSessionPath := AValue;
+end;
+
+procedure TCustomSlimHttpApplication.SetSessions(AValue: boolean);
+begin
+  if FSessions = AValue then
+    Exit;
+  FSessions := AValue;
+end;
 
 function TCustomSlimHttpApplication.InitializeWebHandler: TWebHandler;
 begin
@@ -393,12 +488,15 @@ begin
   Threaded := True;
   InitCriticalSection(FRoutesCriticalSection);
   FRoutes := TRouteContainerList.Create(True);
+  FMiddleware := TServerMiddlewareList.Create(True);
+  FMiddleware.Add(TSessionMiddleware.Create(self));
 end;
 
 destructor TCustomSlimHttpApplication.Destroy;
 begin
   inherited Destroy;
   FRoutes.Free;
+  FMiddleware.Free;
   DoneCriticalsection(FRoutesCriticalSection);
 end;
 
