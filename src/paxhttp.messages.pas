@@ -123,7 +123,6 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    property Header[index: integer]: THTTPHeader read GetHeader write SetHeader; default;
     function getEnumerator: THTTPHeaderEnumerator;
     function count: int64;
     procedure Add(AHeader: string); overload;
@@ -131,6 +130,7 @@ type
     procedure removeHeader(aName: string);
     function indexOf(aName: string): integer;
     procedure clear;
+    property Header[index: integer]: THTTPHeader read GetHeader write SetHeader; default;
   end;
 
   { THTTPMessage }
@@ -145,14 +145,15 @@ type
   public
     constructor Create; virtual;
     destructor Destroy; override;
-  published
     function getHeaders: THTTPHeaders;
-    property Body: TStream read GetBody write SetBody;
     function hasHeader(name: string): boolean;
     procedure removeHeader(name: string);
     function getHeader(name: string): string;
     procedure setHeader(name, value: string);
     procedure addHeader(name, value: string);
+  published
+    property Headers: THTTPHeaders read FHeaders;
+    property Body: TStream read GetBody write SetBody;
   end;
 
   { THttpRequest }
@@ -171,6 +172,7 @@ type
   public
     constructor Create; override; overload;
     constructor Create(aUri: string); overload;
+  published
     property Method: string read GetMethod write SetMethod;
     property URL: TURL read GetURL write SetURL;
     property Version: string read GetVersion write SetVersion;
@@ -212,7 +214,7 @@ type
   TFormDataRequest = class(THttpRequest)
   private
     FBoundary: string;
-    FformData: TForm;
+    FFormData: TForm;
     procedure SetformData(AValue: TForm);
   public
     constructor Create; override;
@@ -236,6 +238,7 @@ type
     procedure SetStatusLine(AValue: string);
   public
     constructor Create; override;
+  published
     property StatusLine: string read GetStatusLine write SetStatusLine;
     property StatusCode: word read GetStatusCode write SetStatusCode;
     property ReasonPhase: string read GetReasonPhase write SetReasonPhase;

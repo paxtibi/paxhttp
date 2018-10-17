@@ -597,6 +597,7 @@ begin
       until (Readed = 0) or Terminated;
     end;
   end;
+  aResponse.Body.Seek(0, 0);
 end;
 
 procedure TDefaultHTTPClient.resetResponse(var aResponse: THTTPResponse);
@@ -686,7 +687,7 @@ end;
 function TDefaultHTTPClient.request(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
 var
   e: TEncoder;
-  encodedRequest: THttpRequest;
+  encodedRequest: THttpRequest = nil;
 begin
   if aRequest is TFormDataRequest then
   begin
