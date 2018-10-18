@@ -5,7 +5,7 @@ unit paxhttp.server;
 interface
 
 uses
-  fgl, Classes, SysUtils, custhttpapp, custweb, HTTPDefs, httproute, RegExpr;
+  fgl, Classes, SysUtils, custhttpapp, custweb, HTTPDefs, RegExpr;
 
 type
   TRouteProcedure = procedure(aReq: TRequest; aResp: TResponse; args: TStrings);
