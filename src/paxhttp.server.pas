@@ -113,12 +113,19 @@ type
 
   TServerMiddlewareList = specialize TFPGObjectList<TServerMiddleware>;
 
+  TServerRequestEvent = procedure(Sender: TObject; ARequest: TRequest; AResponse: TResponse) of object;
+
+
   { TCustomSlimHttpApplication }
 
   TCustomSlimHttpApplication = class(TCustomHTTPApplication)
   private
+    FAfterServe: TServerRequestEvent;
+    FBeforeServe: TServerRequestEvent;
     FSessionPath: string;
     FSessions: boolean;
+    procedure SetAfterServe(AValue: TServerRequestEvent);
+    procedure SetBeforeServe(AValue: TServerRequestEvent);
     procedure SetSessionPath(AValue: string);
     procedure SetSessions(AValue: boolean);
   protected
@@ -137,6 +144,10 @@ type
     function getCandidates(aRequest: TRequest): TRouteContainerList;
     property SessionPath: string read FSessionPath write SetSessionPath;
     property Sessions: boolean read FSessions write SetSessions;
+
+    property BeforeServe: TServerRequestEvent read FBeforeServe write SetBeforeServe;
+    property AfterServe: TServerRequestEvent read FAfterServe write SetAfterServe;
+
   end;
 
   { THTTPServerApplicationHandler }
@@ -437,6 +448,10 @@ var
 begin
   try
     cwebapp := GetOwner as TCustomSlimHttpApplication;
+    if assigned(cwebapp.BeforeServe) then
+    begin
+      cwebapp.BeforeServe(cwebapp, ARequest, AResponse);
+    end;
     list := cwebapp.getCandidates(ARequest);
     stopProcess := False;
     for middleware in cwebapp.FMiddleware do
@@ -454,6 +469,10 @@ begin
         list.Free;
       end;
     end;
+    if assigned(cwebapp.AfterServe) then
+    begin
+      cwebapp.AfterServe(cwebapp, ARequest, AResponse);
+    end;
   except
     On E: Exception do
       ShowRequestException(AResponse, E);
@@ -468,6 +487,20 @@ begin
   if FSessionPath = AValue then
     Exit;
   FSessionPath := AValue;
+end;
+
+procedure TCustomSlimHttpApplication.SetAfterServe(AValue: TServerRequestEvent);
+begin
+  if FAfterServe = AValue then
+    Exit;
+  FAfterServe := AValue;
+end;
+
+procedure TCustomSlimHttpApplication.SetBeforeServe(AValue: TServerRequestEvent);
+begin
+  if FBeforeServe = AValue then
+    Exit;
+  FBeforeServe := AValue;
 end;
 
 procedure TCustomSlimHttpApplication.SetSessions(AValue: boolean);
