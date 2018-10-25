@@ -5,7 +5,7 @@ unit paxhttp.server;
 interface
 
 uses
-  fgl, Classes, SysUtils, custhttpapp, custweb, HTTPDefs, RegExpr;
+  fgl, Classes, SysUtils, custhttpapp, custweb, HTTPDefs, RegExpr, fphttpserver;
 
 type
   TRouteProcedure = procedure(aReq: TRequest; aResp: TResponse; args: TStrings);
@@ -101,20 +101,48 @@ type
 
   { TServerMiddleware }
 
-  TServerMiddleware = class
+  TServerMiddleware = class(TComponent)
   private
+    FActive: boolean;
     FApplication: TCustomSlimHttpApplication;
+    procedure SetActive(AValue: boolean);
     procedure SetApplication(AValue: TCustomSlimHttpApplication);
-  public
-    constructor Create(anApplication: TCustomSlimHttpApplication);
+  protected
     function invoke(ARequest: TRequest; AResponse: TResponse): boolean; virtual;
+  public
+    constructor Create(anApplication: TCustomSlimHttpApplication); virtual;
     property Application: TCustomSlimHttpApplication read FApplication write SetApplication;
+    property Active: boolean read FActive write SetActive;
   end;
 
   TServerMiddlewareList = specialize TFPGObjectList<TServerMiddleware>;
 
   TServerRequestEvent = procedure(Sender: TObject; ARequest: TRequest; AResponse: TResponse) of object;
 
+  { TSessionMiddleware }
+
+  TSessionMiddleware = class(TServerMiddleware)
+  private
+    FAutoStart: boolean;
+    FExires: integer;
+    FSessionName: string;
+    FSessionPath: string;
+    FSessionStorePath: string;
+    procedure SetAutoStart(AValue: boolean);
+    procedure SetExires(AValue: integer);
+    procedure SetSessionName(AValue: string);
+    procedure SetSessionPath(AValue: string);
+    procedure SetSessionStorePath(AValue: string);
+  protected
+    function invoke(ARequest: TRequest; AResponse: TResponse): boolean; override;
+  public
+    constructor Create(anApplication: TCustomSlimHttpApplication); override;
+    property AutoStart: boolean read FAutoStart write SetAutoStart;
+    property SessionName: string read FSessionName write SetSessionName;
+    property SessionPath: string read FSessionPath write SetSessionPath;
+    property SessionStorePath: string read FSessionStorePath write SetSessionStorePath;
+    property Exires: integer read FExires write SetExires;
+  end;
 
   { TCustomSlimHttpApplication }
 
@@ -122,16 +150,17 @@ type
   private
     FAfterServe: TServerRequestEvent;
     FBeforeServe: TServerRequestEvent;
+    FSession: TCustomSession;
     FSessionPath: string;
     FSessions: boolean;
+    function GetSessionMiddleware: TSessionMiddleware;
     procedure SetAfterServe(AValue: TServerRequestEvent);
     procedure SetBeforeServe(AValue: TServerRequestEvent);
-    procedure SetSessionPath(AValue: string);
-    procedure SetSessions(AValue: boolean);
   protected
     FRoutesCriticalSection: TRTLCriticalSection;
     FRoutes: TRouteContainerList;
     FMiddleware: TServerMiddlewareList;
+    FSessionMiddleware: TSessionMiddleware;
     function InitializeWebHandler: TWebHandler; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -142,31 +171,46 @@ type
     procedure AddRoute(aMethod, aUrlPattern: string; delegate: IRoute);
     procedure AddRoute(aMethod, aUrlPattern: string; delegate: TRouteMethod);
     function getCandidates(aRequest: TRequest): TRouteContainerList;
-    property SessionPath: string read FSessionPath write SetSessionPath;
-    property Sessions: boolean read FSessions write SetSessions;
-
     property BeforeServe: TServerRequestEvent read FBeforeServe write SetBeforeServe;
     property AfterServe: TServerRequestEvent read FAfterServe write SetAfterServe;
+    property SessionHandler: TSessionMiddleware read GetSessionMiddleware;
+  end;
 
+  { TSlimEmbeddedHttpServer }
+
+  TSlimEmbeddedHttpServer = class(TEmbeddedHttpServer)
+  public
+    function CreateRequest: TFPHTTPConnectionRequest; override;
+  end;
+
+  { TSlimRequest }
+
+  TSlimRequest = class(TFPHTTPConnectionRequest)
+  private
+    FSession: TCustomSession;
+    procedure SetSession(AValue: TCustomSession);
+  public
+    constructor Create; override;
+    destructor destroy; override;
+    property Session: TCustomSession read FSession write SetSession;
   end;
 
   { THTTPServerApplicationHandler }
 
   THTTPServerApplicationHandler = class(TFPHTTPServerHandler)
   protected
+    function CreateServer: TEmbeddedHttpServer; override;
     procedure HandleRequest(ARequest: TRequest; AResponse: TResponse); override;
   published
   end;
 
-  { TSessionMiddleware }
-
-  TSessionMiddleware = class(TServerMiddleware)
-    function invoke(ARequest: TRequest; AResponse: TResponse): boolean; override;
-  end;
 
 procedure defaultFavIcon(aReq: TRequest; aResp: TResponse; args: TStrings);
 
 implementation
+
+uses
+  fphttp, paxhttp.server.sessions;
 
 const
   RegString = '(\[?\/?\{([\w_][\w\d_-]*|[\w_][\w\d_-]*(:"(.*)"))\}\]?)';
@@ -183,16 +227,100 @@ begin
   end;
 end;
 
+{ TSlimEmbeddedHttpServer }
+
+function TSlimEmbeddedHttpServer.CreateRequest: TFPHTTPConnectionRequest;
+begin
+  Result := TSlimRequest.Create;
+end;
+
+{ TSlimRequest }
+
+procedure TSlimRequest.SetSession(AValue: TCustomSession);
+begin
+  if FSession = AValue then
+    Exit;
+  FSession := AValue;
+end;
+
+constructor TSlimRequest.Create;
+begin
+  inherited Create;
+  FSession := nil;
+end;
+
+destructor TSlimRequest.destroy;
+begin
+  FreeAndNil(FSession);
+  inherited destroy;
+end;
+
 { TSessionMiddleware }
+
+procedure TSessionMiddleware.SetSessionName(AValue: string);
+begin
+  if FSessionName = AValue then
+    Exit;
+  FSessionName := AValue;
+  SessionFactory.SessionCookie := FSessionName;
+end;
+
+procedure TSessionMiddleware.SetAutoStart(AValue: boolean);
+begin
+  if FAutoStart = AValue then
+    Exit;
+  FAutoStart := AValue;
+end;
+
+procedure TSessionMiddleware.SetExires(AValue: integer);
+begin
+  if FExires = AValue then
+    Exit;
+  FExires := AValue;
+end;
+
+procedure TSessionMiddleware.SetSessionPath(AValue: string);
+begin
+  if FSessionPath = AValue then
+    Exit;
+  FSessionPath := AValue;
+  SessionFactory.SessionCookiePath := AValue;
+end;
+
+procedure TSessionMiddleware.SetSessionStorePath(AValue: string);
+begin
+  if FSessionStorePath = AValue then
+    Exit;
+  FSessionStorePath := AValue;
+  TSlimSessionFactory(SessionFactory).SessionDir := AValue;
+end;
+
+constructor TSessionMiddleware.Create(anApplication: TCustomSlimHttpApplication);
+begin
+  inherited Create(anApplication);
+  FAutoStart := False;
+  FExires := -1;
+end;
 
 function TSessionMiddleware.invoke(ARequest: TRequest; AResponse: TResponse): boolean;
 var
   session: TCustomSession;
 begin
   result := inherited invoke(ARequest, AResponse);
-  if Application.Sessions then
+  if FActive then
   begin
-    session := nil;
+    session := SessionFactory.CreateSession(ARequest);
+    if Exires > 0 then
+    begin
+      (Session as TSlimSession).TimeoutMinutes := Exires;
+    end;
+    (ARequest as TSlimRequest).Session := session;
+    if (ARequest is TSlimRequest) then
+    begin
+      (session as TSlimSession).InitSession(ARequest, nil, nil);
+      if FAutoStart then
+        (session as TSlimSession).InitResponse(AResponse);
+    end;
   end;
 end;
 
@@ -205,9 +333,17 @@ begin
   FApplication := AValue;
 end;
 
+procedure TServerMiddleware.SetActive(AValue: boolean);
+begin
+  if FActive = AValue then
+    Exit;
+  FActive := AValue;
+end;
+
 constructor TServerMiddleware.Create(anApplication: TCustomSlimHttpApplication);
 begin
   FApplication := anApplication;
+  FActive := True;
 end;
 
 function TServerMiddleware.invoke(ARequest: TRequest; AResponse: TResponse): boolean;
@@ -438,6 +574,11 @@ end;
 
 { THTTPServerApplicationHandler }
 
+function THTTPServerApplicationHandler.CreateServer: TEmbeddedHttpServer;
+begin
+  Result := TSlimEmbeddedHttpServer.Create(self);
+end;
+
 procedure THTTPServerApplicationHandler.HandleRequest(ARequest: TRequest; AResponse: TResponse);
 var
   cwebapp: TCustomSlimHttpApplication;
@@ -456,7 +597,8 @@ begin
     stopProcess := False;
     for middleware in cwebapp.FMiddleware do
     begin
-      middleware.invoke(ARequest, AResponse);
+      if middleware.invoke(ARequest, AResponse) then
+        break;
     end;
     if not stopProcess then
     begin
@@ -482,13 +624,6 @@ end;
 
 { TCustomSlimHttpApplication }
 
-procedure TCustomSlimHttpApplication.SetSessionPath(AValue: string);
-begin
-  if FSessionPath = AValue then
-    Exit;
-  FSessionPath := AValue;
-end;
-
 procedure TCustomSlimHttpApplication.SetAfterServe(AValue: TServerRequestEvent);
 begin
   if FAfterServe = AValue then
@@ -496,18 +631,21 @@ begin
   FAfterServe := AValue;
 end;
 
+function TCustomSlimHttpApplication.GetSessionMiddleware: TSessionMiddleware;
+begin
+  if FSessionMiddleware = nil then
+  begin
+    FSessionMiddleware := TSessionMiddleware.Create(self);
+    FMiddleware.Add(FSessionMiddleware);
+  end;
+  result := FSessionMiddleware;
+end;
+
 procedure TCustomSlimHttpApplication.SetBeforeServe(AValue: TServerRequestEvent);
 begin
   if FBeforeServe = AValue then
     Exit;
   FBeforeServe := AValue;
-end;
-
-procedure TCustomSlimHttpApplication.SetSessions(AValue: boolean);
-begin
-  if FSessions = AValue then
-    Exit;
-  FSessions := AValue;
 end;
 
 function TCustomSlimHttpApplication.InitializeWebHandler: TWebHandler;

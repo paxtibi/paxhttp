@@ -60,7 +60,7 @@
     </Linking>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="3">
+    <Exceptions Count="8">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -70,6 +70,21 @@
       <Item3>
         <Name Value="EFOpenError"/>
       </Item3>
+      <Item4>
+        <Name Value="EWebSessionError"/>
+      </Item4>
+      <Item5>
+        <Name Value="EFCreateError"/>
+      </Item5>
+      <Item6>
+        <Name Value="EWriteError"/>
+      </Item6>
+      <Item7>
+        <Name Value="EHTTPServer"/>
+      </Item7>
+      <Item8>
+        <Name Value="EHTTPRoute"/>
+      </Item8>
     </Exceptions>
   </Debugging>
 </CONFIG>

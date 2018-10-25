@@ -8,8 +8,8 @@ unit paxhttp_package;
 interface
 
 uses
-  paxhttp.client, paxhttp.encoders, paxhttp.messages, paxhttp.middlewares, paxhttp.server, 
-  LazarusPackageIntf;
+  paxhttp.client, paxhttp.encoders, paxhttp.messages, paxhttp.middlewares, 
+  paxhttp.server, paxhttp.server.sessions, LazarusPackageIntf;
 
 implementation
 
