@@ -1,7 +1,7 @@
 {
 @see https://developer.mozilla.org/it/docs/Web/HTTP
 }
-unit paxhttp.messages;
+unit paxhttp.Messages;
 
 {$mode objfpc}{$H+}
 {$ModeSwitch advancedrecords}
@@ -17,7 +17,7 @@ const
   AcceptDatetime = 'Accept-Datetime';//    Accept-Datetime: Thu, 31 May 2007 20:35:00 GMT  Provisional
   AcceptEncoding = 'Accept-Encoding';//    Accept-Encoding: gzip, deflate  Permanent
   AcceptLanguage = 'Accept-Language';//    Accept-Language: en-US  Permanent
-  AccessControlRequestHeaders = 'Access-Control-Request-Headers';//
+  AccessControlRequestHeaders = 'Access-Control-Request-Headers';
   AccessControlRequestMethod = 'Access-Control-Request-Method';//    Access-Control-Request-Method: GET  Permanent: standard
   AIM = 'A-IM';//    A-IM: feed  Permanent
   Authorization = 'Authorization';//    Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==  Permanent
@@ -58,7 +58,7 @@ const
   Via = 'Via';//    Via: 1.0 fred, 1.1 example.com (Apache/1.1)  Permanent
   Warning = 'Warning';//    Warning: 199 Miscellaneous warning  Permanent
   XATTDeviceId = 'X-ATT-DeviceId';//    X-Att-Deviceid: GT-P7320/P7320XXLPG
-  XCorrelationID = 'X-Correlation-ID';//
+  XCorrelationID = 'X-Correlation-ID';
   XCsrfToken = 'X-Csrf-Token';//    X-Csrf-Token: i8XNjC4b8KVok4uw5RftR38Wgp2BFwql
   XForwardedFor = 'X-Forwarded-For';//    X-Forwarded-For: client1, proxy1, proxy2
   XForwardedHost = 'X-Forwarded-Host';//    X-Forwarded-Host: en.wikipedia.org:8080
@@ -124,12 +124,12 @@ type
     constructor Create;
     destructor Destroy; override;
     function getEnumerator: THTTPHeaderEnumerator;
-    function count: int64;
+    function Count: int64;
     procedure Add(AHeader: string); overload;
     procedure Add(AHeader: THTTPHeader); overload;
     procedure removeHeader(aName: string);
     function indexOf(aName: string): integer;
-    procedure clear;
+    procedure Clear;
     property Header[index: integer]: THTTPHeader read GetHeader write SetHeader; default;
   end;
 
@@ -146,11 +146,11 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
     function getHeaders: THTTPHeaders;
-    function hasHeader(name: string): boolean;
-    procedure removeHeader(name: string);
-    function getHeader(name: string): string;
-    procedure setHeader(name, value: string);
-    procedure addHeader(name, value: string);
+    function hasHeader(Name: string): boolean;
+    procedure removeHeader(Name: string);
+    function getHeader(Name: string): string;
+    procedure setHeader(Name, Value: string);
+    procedure addHeader(Name, Value: string);
   published
     property Headers: THTTPHeaders read FHeaders;
     property Body: TStream read GetBody write SetBody;
@@ -172,6 +172,7 @@ type
   public
     constructor Create; override; overload;
     constructor Create(aUri: string); overload;
+    destructor Destroy; override;
   published
     property Method: string read GetMethod write SetMethod;
     property URL: TURL read GetURL write SetURL;
@@ -262,7 +263,7 @@ type
     constructor Create;
     destructor Destroy; override;
     class function parse(auri: RawByteString): TURI; virtual;
-    procedure assign(auri: RawByteString); virtual;
+    procedure Assign(auri: RawByteString); virtual;
     property Scheme: string read FScheme write SetScheme;
     property autority: string read Fautority write Setautority;
     property path: string read Fpath write Setpath;
@@ -285,7 +286,7 @@ type
     procedure Setuserinfo(AValue: string);
   public
     class function parse(auri: string): TURL; reintroduce;
-    procedure assign(auri: RawByteString); override;
+    procedure Assign(auri: RawByteString); override;
   public
     property autority: string read GetAutority;
     property userInfo: string read Fuserinfo write Setuserinfo;
@@ -356,7 +357,7 @@ end;
 
 function TFormDataFile.GetFileName: string;
 begin
-  result := Value;
+  Result := Value;
 end;
 
 procedure TFormDataFile.SetStream(AValue: TStream);
@@ -423,12 +424,12 @@ end;
 
 function TUrl.GetAutority: string;
 begin
-  result := '';
+  Result := '';
   if userInfo <> '' then
-    result += userInfo + '@';
-  result += host;
+    Result += userInfo + '@';
+  Result += host;
   if port <> 0 then
-    result += ':' + FPort.ToString;
+    Result += ':' + FPort.ToString;
 end;
 
 procedure TUrl.Setport(AValue: word);
@@ -447,16 +448,16 @@ end;
 
 class function TUrl.parse(auri: string): TURL;
 begin
-  result := TUrl.Create;
-  result.assign(auri);
+  Result := TUrl.Create;
+  Result.Assign(auri);
 end;
 
-procedure TUrl.assign(auri: RawByteString);
+procedure TUrl.Assign(auri: RawByteString);
 var
   position: integer;
   buffer: RawByteString;
 begin
-  inherited assign(auri);
+  inherited Assign(auri);
   FPort := 0;
   FHost := '';
   FUserInfo := '';
@@ -494,14 +495,14 @@ end;
 
 function TUri.getServerUrl: string;
 begin
-  result := '/';
+  Result := '/';
   if FPath <> '' then
-    result += FPath;
+    Result += FPath;
   if FQueryString <> '' then
-    result += '?' + FQueryString;
+    Result += '?' + FQueryString;
   if FFragment <> '' then
-    result += '#' + FFragment;
-  result := StringReplace(Result, '//', '/', [rfReplaceAll]);
+    Result += '#' + FFragment;
+  Result := StringReplace(Result, '//', '/', [rfReplaceAll]);
 end;
 
 procedure TUri.Setautority(AValue: string);
@@ -552,11 +553,11 @@ end;
 class function TUri.parse(auri: RawByteString): TURI;
   //scheme:[//authority]path[?query][#fragment]
 begin
-  result := TUri.Create;
-  Result.assign(auri);
+  Result := TUri.Create;
+  Result.Assign(auri);
 end;
 
-procedure TUri.assign(auri: RawByteString);
+procedure TUri.Assign(auri: RawByteString);
 var
   position: integer;
 begin
@@ -586,7 +587,7 @@ begin
   position := pos('/', auri);
   if position > 0 then
   begin
-    Fpath := copy(auri, position + 1, Length(auri));
+    FPath := copy(auri, position + 1, Length(auri));
     Delete(auri, position, Length(auri));
   end;
   Fautority := auri;
@@ -607,7 +608,7 @@ end;
 
 constructor THTTPHeaderEnumerator.Create(aList: THTTPHeaders);
 begin
-  inherited create;
+  inherited Create;
   FList := AList;
   FPosition := -1;
 end;
@@ -629,7 +630,7 @@ end;
 function THTTPHeaders.GetHeader(index: integer): THTTPHeader;
 begin
   EnterCriticalSection(FLock);
-  result := FContainer[index];
+  Result := FContainer[index];
   LeaveCriticalsection(FLock);
 end;
 
@@ -659,14 +660,14 @@ end;
 
 function THTTPHeaders.getEnumerator: THTTPHeaderEnumerator;
 begin
-  result := THTTPHeaderEnumerator.Create(self);
+  Result := THTTPHeaderEnumerator.Create(self);
 end;
 
-function THTTPHeaders.count: int64;
+function THTTPHeaders.Count: int64;
 begin
   try
     EnterCriticalsection(FLock);
-    result := FContainer.Count;
+    Result := FContainer.Count;
     LeaveCriticalsection(FLock);
   except
   end;
@@ -679,11 +680,11 @@ var
   c, p: PChar;
   h: THTTPHeader;
 begin
-  p := pchar(AHeader);
+  p := PChar(AHeader);
   c := p;
   while c^ <> ':' do
   begin
-    inc(c);
+    Inc(c);
   end;
   SetString(aName, p, c - p);
   aValue := Copy(AHeader, (c - p + 2));
@@ -728,7 +729,7 @@ function THTTPHeaders.indexOf(aName: string): integer;
 var
   idx: integer;
 begin
-  result := -1;
+  Result := -1;
   for idx := 0 to Count - 1 do
   begin
     if CompareText(Header[idx].Name, aName) = 0 then
@@ -738,7 +739,7 @@ begin
   end;
 end;
 
-procedure THTTPHeaders.clear;
+procedure THTTPHeaders.Clear;
 begin
   EnterCriticalsection(FLock);
   FContainer.Clear;
@@ -756,12 +757,12 @@ end;
 
 function THTTPHeader.GetName: string;
 begin
-  result := FName;
+  Result := FName;
 end;
 
 function THTTPHeader.GetValue: string;
 begin
-  result := FValue;
+  Result := FValue;
 end;
 
 procedure THTTPHeader.SetValue(AValue: string);
@@ -795,17 +796,17 @@ end;
 
 function THttpResponse.GetReasonPhase: string;
 begin
-  result := FReasonPhase;
+  Result := FReasonPhase;
 end;
 
 function THttpResponse.GetStatusCode: word;
 begin
-  result := FStatusCode;
+  Result := FStatusCode;
 end;
 
 function THttpResponse.GetStatusLine: string;
 begin
-  result := FStatusLine;
+  Result := FStatusLine;
 end;
 
 procedure THttpResponse.SetStatusCode(AValue: word);
@@ -838,17 +839,17 @@ end;
 
 function THttpRequest.GetMethod: string;
 begin
-  result := FMethod;
+  Result := FMethod;
 end;
 
 function THttpRequest.GetURL: TURL;
 begin
-  result := FURL;
+  Result := FURL;
 end;
 
 function THttpRequest.GetVersion: string;
 begin
-  result := FVersion;
+  Result := FVersion;
 end;
 
 procedure THttpRequest.SetURL(AValue: TURL);
@@ -877,6 +878,12 @@ begin
   FURL := TUrl.parse(aUri);
 end;
 
+destructor THttpRequest.Destroy;
+begin
+  FreeAndNil(FURL);
+  inherited Destroy;
+end;
+
 { THTTPMessage }
 
 constructor THTTPMessage.Create;
@@ -894,12 +901,12 @@ end;
 
 function THTTPMessage.getHeaders: THTTPHeaders;
 begin
-  result := FHeaders;
+  Result := FHeaders;
 end;
 
 function THTTPMessage.GetBody: TStream;
 begin
-  result := FBody;
+  Result := FBody;
 end;
 
 procedure THTTPMessage.SetBody(AValue: TStream);
@@ -909,40 +916,40 @@ begin
   FBody := AValue;
 end;
 
-function THTTPMessage.hasHeader(name: string): boolean;
+function THTTPMessage.hasHeader(Name: string): boolean;
 begin
-  result := FHeaders.indexOf(name) >= 0;
+  Result := FHeaders.indexOf(Name) >= 0;
 end;
 
-procedure THTTPMessage.removeHeader(name: string);
+procedure THTTPMessage.removeHeader(Name: string);
 begin
-  FHeaders.removeHeader(name);
+  FHeaders.removeHeader(Name);
 end;
 
-function THTTPMessage.getHeader(name: string): string;
+function THTTPMessage.getHeader(Name: string): string;
 var
   idx: integer;
 begin
-  result := '';
-  idx := FHeaders.indexOf(name);
+  Result := '';
+  idx := FHeaders.indexOf(Name);
   if idx >= 0 then
-    result := FHeaders.Header[idx].Value;
+    Result := FHeaders.Header[idx].Value;
 end;
 
-procedure THTTPMessage.setHeader(name, value: string);
+procedure THTTPMessage.setHeader(Name, Value: string);
 var
   idx: integer;
 begin
-  idx := FHeaders.indexOf(name);
+  idx := FHeaders.indexOf(Name);
   if idx >= 0 then
-    FHeaders.Header[idx].Value := value
+    FHeaders.Header[idx].Value := Value
   else
-    addHeader(name, value);
+    addHeader(Name, Value);
 end;
 
-procedure THTTPMessage.addHeader(name, value: string);
+procedure THTTPMessage.addHeader(Name, Value: string);
 begin
-  FHeaders.Add(Format('%s: %s', [name, value]));
+  FHeaders.Add(Format('%s: %s', [Name, Value]));
 end;
 
 
