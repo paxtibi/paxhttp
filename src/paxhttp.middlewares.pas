@@ -55,7 +55,7 @@ type
     procedure SetPassword(AValue: string);
     procedure SetUserName(AValue: string);
   public
-    constructor Create;
+    constructor Create; override;
     function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
   end;
 
@@ -78,7 +78,7 @@ type
     Fproxy: string;
     procedure Setproxy(AValue: string);
   public
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
     property proxy: string read Fproxy write Setproxy;
   end;
 
@@ -242,7 +242,6 @@ begin
   cookies := TStringList.Create;
   cookies.LineBreak := ';';
   cookies.Duplicates := dupIgnore;
-
   cookieValues := aRequest.getHeader('Cookie').Split(';');
   for s in cookieValues do
     cookies.Add(s);
@@ -256,6 +255,7 @@ begin
       setLength(cookieValues, 0);
     end;
   aRequest.setHeader('Cookie', cookies.Text);
+  cookies.Clear;
   FreeAndNil(cookies);
   result := True;
 end;
