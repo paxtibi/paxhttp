@@ -107,7 +107,7 @@ type
 implementation
 
 uses
-  base64, paxhttp.middlewares
+  base64, paxhttp.middlewares, paxlog
   {$if not defined(hasamiga)}
   , sslsockets
 {$endif} ;
@@ -198,8 +198,6 @@ begin
   buffer := (uppercase(aRequest.Method) + ' ' + getServerUrl(aRequest) + ' HTTP/' + aRequest.Version) + CRLF;
   if Assigned(aRequest.Body) and (StrToInt64Def(aRequest.getHeader('Content-Length'), -1) = -1) then
     aRequest.setHeader('Content-Length', aRequest.Body.Size.ToString);
-  //handleKeepConnection(aRequest);
-
   for header in aRequest.getHeaders() do
   begin
     headerString := header.toString;
@@ -253,7 +251,7 @@ end;
 destructor TDefaultHTTPClient.Destroy;
 var
   idx: integer;
-  m: TMiddleware;
+  m:   TMiddleware;
 begin
   disconnect;
   for idx := FPreprocessList.Count - 1 downto 0 do
@@ -274,19 +272,23 @@ end;
 
 procedure TDefaultHTTPClient.sendRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse);
 var
-  Header: string;
+  Buffer: string;
 begin
-  Header := prepareHeader(aRequest);
+  TLogLogger.GetLogger('HTTP').Enter(self, 'sendRequest');
+  Buffer := prepareHeader(aRequest);
   FTerminated := False;
+  TLogLogger.GetLogger('HTTP').Trace(Buffer);
   if not Terminated then
   begin
-    FSocket.WriteBuffer(pchar(Header)^, Length(Header));
+    FSocket.WriteBuffer(pchar(Buffer)^, Length(Buffer));
   end;
   if Assigned(aRequest.Body) and not Terminated then
   begin
+    TLogLogger.GetLogger('HTTP').Trace(aRequest.Body);
     aRequest.Body.Position := 0;
     FSocket.CopyFrom(aRequest.Body, aRequest.Body.Size);
   end;
+  TLogLogger.GetLogger('HTTP').Leave(self, 'sendRequest');
 end;
 
 function TDefaultHTTPClient.ReadString(out StringResult: string): boolean;
@@ -311,7 +313,7 @@ function TDefaultHTTPClient.ReadString(out StringResult: string): boolean;
 
 var
   CheckLF: boolean;
-  P, L: integer;
+  P, L:    integer;
 begin
   StringResult := '';
   Result := False;
@@ -323,15 +325,15 @@ begin
     if Length(FBuffer) = 0 then
       Result := True
     else if CheckLF then
-    begin
-      if (FBuffer[1] <> #10) then
-        StringResult := StringResult + #13
-      else
       begin
-        System.Delete(FBuffer, 1, 1);
-        Result := True;
+        if (FBuffer[1] <> #10) then
+          StringResult := StringResult + #13
+        else
+        begin
+          System.Delete(FBuffer, 1, 1);
+          Result := True;
+        end;
       end;
-    end;
     if not Result then
     begin
       P := Pos(#13#10, FBuffer);
@@ -418,15 +420,19 @@ function TDefaultHTTPClient.ReadResponseHeaders(var AResponse: THTTPResponse): i
 var
   StatusLine, S: string;
 begin
+  TLogLogger.GetLogger('HTTP').Enter(self, 'ReadResponseHeaders');
   if not ReadString(StatusLine) then
     Exit(0);
   Result := ParseStatusLine(AResponse, StatusLine);
+  TLogLogger.GetLogger('HTTP').Trace(StatusLine);
   repeat
     if ReadString(S) and (S <> '') then
     begin
       AResponse.getHeaders.Add(S);
+      TLogLogger.GetLogger('HTTP').Trace(S);
     end
   until (S = '') or Terminated;
+  TLogLogger.GetLogger('HTTP').Leave(self, 'ReadResponseHeaders');
 end;
 
 procedure TDefaultHTTPClient.receiveResponse(aRequest: THTTPRequest; var aResponse: THTTPResponse);
@@ -562,6 +568,7 @@ var
   ResponseStatusCode: word;
   Result: boolean;
 begin
+  TLogLogger.GetLogger('HTTP').Enter(self, 'receiveResponse');
   resetResponse(aResponse);
   SetLength(FBuffer, 0);
   ResponseStatusCode := ReadResponseHeaders(aResponse);
@@ -591,13 +598,15 @@ begin
       until (contentLength = 0) or (Readed = 0) or Terminated;
     end
     else if (contentLength < 0) and (not ((ResponseStatusCode div 100) = 1) or ((ResponseStatusCode = 204) or (ResponseStatusCode = 304))) then
-    begin
-      repeat
-        Readed := Transfer(ReadBufLen);
-      until (Readed = 0) or Terminated;
-    end;
+      begin
+        repeat
+          Readed := Transfer(ReadBufLen);
+        until (Readed = 0) or Terminated;
+      end;
   end;
   aResponse.Body.Seek(0, 0);
+  TLogLogger.GetLogger('HTTP').Trace(aResponse.Body);
+  TLogLogger.GetLogger('HTTP').Leave(self, 'receiveResponse');
 end;
 
 procedure TDefaultHTTPClient.resetResponse(var aResponse: THTTPResponse);
