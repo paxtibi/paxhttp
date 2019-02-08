@@ -2,3 +2,4 @@ lib
 /demos/lib
 /demos/bin
 *.lps
+/bin/*
