@@ -5,44 +5,50 @@ unit paxhttp.middlewares;
 interface
 
 uses
-  Classes, SysUtils, paxhttp.client, paxhttp.messages;
+  Classes, SysUtils, paxhttp.client, paxhttp.Messages;
 
 type
 
   { TCookieMiddlewarePreprocess }
 
   TCookieMiddlewarePreprocess = class(TMiddleware)
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest;
+      aResponse: THttpResponse; args: TStrings): boolean; override;
   end;
 
   { TAjaxMiddlewarePreprocess }
 
   TAjaxMiddlewarePreprocess = class(TMiddleware)
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest;
+      aResponse: THttpResponse; args: TStrings): boolean; override;
   end;
 
   { TReferredMiddlewarePreprocess }
 
   TReferredMiddlewarePostProcess = class(TMiddleware)
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest;
+      aResponse: THttpResponse; args: TStrings): boolean; override;
   end;
 
   { TCorrelationIdPreprocess }
 
   TCorrelationIdPreprocess = class(TMiddleware)
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest;
+      aResponse: THttpResponse; args: TStrings): boolean; override;
   end;
 
   { THostPreprocess }
 
   THostPreprocess = class(TMiddleware)
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest;
+      aResponse: THttpResponse; args: TStrings): boolean; override;
   end;
 
   { TRedirectPostProcess }
 
   TRedirectPostProcess = class(TMiddleware)
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest;
+      aResponse: THttpResponse; args: TStrings): boolean; override;
   end;
 
 
@@ -56,7 +62,8 @@ type
     procedure SetUserName(AValue: string);
   public
     constructor Create; override;
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest;
+      aResponse: THttpResponse; args: TStrings): boolean; override;
   end;
 
   { TBearerAuthorization }
@@ -68,7 +75,8 @@ type
   public
     constructor Create; override;
     property Token: string read FToken write SetToken;
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest;
+      aResponse: THttpResponse; args: TStrings): boolean; override;
   end;
 
   { TProxyRequestPreprocess }
@@ -78,11 +86,13 @@ type
     Fproxy: string;
     procedure Setproxy(AValue: string);
   public
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; override;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest;
+      aResponse: THttpResponse; args: TStrings): boolean; override;
     property proxy: string read Fproxy write Setproxy;
   end;
 
 implementation
+
 uses
   base64;
 
@@ -101,7 +111,8 @@ begin
   inherited Create;
 end;
 
-function TBearerAuthorization.process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
+function TBearerAuthorization.process(aClient: TDefaultHttpClient;
+  aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
 begin
   if (FToken <> '') and active then
   begin
@@ -112,7 +123,8 @@ end;
 
 { TRedirectPostProcess }
 
-function TRedirectPostProcess.process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
+function TRedirectPostProcess.process(aClient: TDefaultHttpClient;
+  aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
 var
   newLocation: string;
   newURI: TURL;
@@ -132,12 +144,13 @@ begin
       aRequest.URL.path := newLocation;
     end;
   end;
-  result := True;
+  Result := True;
 end;
 
 { THostPreprocess }
 
-function THostPreprocess.process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
+function THostPreprocess.process(aClient: TDefaultHttpClient;
+  aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
 var
   formatStr: string = '%s:%d';
 begin
@@ -147,16 +160,18 @@ begin
     begin
       formatStr := '%s';
     end;
-    aRequest.addHeader('Host', Format(formatStr, [aRequest.URL.host, aRequest.URL.port]));
+    aRequest.addHeader('Host', Format(formatStr, [aRequest.URL.host,
+      aRequest.URL.port]));
   end;
-  result := True;
+  Result := True;
 end;
 
 { TReferredMiddlewarePreprocess }
 
-function TReferredMiddlewarePostProcess.process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
+function TReferredMiddlewarePostProcess.process(aClient: TDefaultHttpClient;
+  aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
 begin
-  result := True;
+  Result := True;
   if aResponse.hasHeader('Referred') then
     aRequest.setHeader('Referred', aResponse.getHeader('Location'))
   else
@@ -165,11 +180,12 @@ end;
 
 { TAjaxMiddlewarePreprocess }
 
-function TAjaxMiddlewarePreprocess.process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
+function TAjaxMiddlewarePreprocess.process(aClient: TDefaultHttpClient;
+  aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
 begin
   if Active and (not aRequest.hasHeader('X-Requested-With')) then
     aRequest.setHeader('X-Requested-With', 'XMLHttpRequest');
-  result := True;
+  Result := True;
 end;
 
 
@@ -182,11 +198,13 @@ begin
   Fproxy := AValue;
 end;
 
-function TProxyRequestPreprocess.process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
+function TProxyRequestPreprocess.process(aClient: TDefaultHttpClient;
+  aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
 begin
   if (UserName <> '') and active then
-    aRequest.addHeader('Proxy-Authorization', Format('Basic %s', [EncodeStringBase64(UserName + ':' + UserName)]));
-  result := True;
+    aRequest.addHeader('Proxy-Authorization', Format('Basic %s',
+      [EncodeStringBase64(UserName + ':' + UserName)]));
+  Result := True;
 end;
 
 { TBasicAuthorizationRequestPreprocess }
@@ -211,15 +229,18 @@ begin
   FPassword := '';
 end;
 
-function TBasicAuthorizationRequestPreprocess.process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
+function TBasicAuthorizationRequestPreprocess.process(aClient: TDefaultHttpClient;
+  aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
 begin
   if active then
-    aRequest.setHeader('Authorization', Format('Basic %s', [EncodeStringBase64(UserName + ':' + Password)]));
+    aRequest.setHeader('Authorization', Format('Basic %s',
+      [EncodeStringBase64(UserName + ':' + Password)]));
 end;
 
 { TCorrelationIdPreprocess }
 
-function TCorrelationIdPreprocess.process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
+function TCorrelationIdPreprocess.process(aClient: TDefaultHttpClient;
+  aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
 begin
   if aResponse.hasHeader('X-Correlation-ID') then
     aRequest.setHeader('X-Correlation-ID', aResponse.getHeader('X-Correlation-ID'))
@@ -227,12 +248,13 @@ begin
     aRequest.addHeader('X-Correlation-ID', TGuid.NewGuid.ToString(True));
   if aResponse.hasHeader('X-Request-ID') then
     aRequest.setHeader('X-Correlation-ID', TGuid.NewGuid.ToString(True));
-  result := True;
+  Result := True;
 end;
 
 { TCookieMiddlewarePreprocess }
 
-function TCookieMiddlewarePreprocess.process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
+function TCookieMiddlewarePreprocess.process(aClient: TDefaultHttpClient;
+  aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
 var
   cookies: TStringList;
   h: THTTPHeader;
@@ -248,7 +270,7 @@ begin
   setLength(cookieValues, 0);
 
   for h in aResponse.getHeaders do
-    if (CompareText(h.Name, paxhttp.messages.SetCookie) = 0) then
+    if (CompareText(h.Name, paxhttp.Messages.SetCookie) = 0) then
     begin
       cookieValues := h.Value.Split(';');
       cookies.Add(cookieValues[0]);
@@ -257,8 +279,7 @@ begin
   aRequest.setHeader('Cookie', cookies.Text);
   cookies.Clear;
   FreeAndNil(cookies);
-  result := True;
+  Result := True;
 end;
 
 end.
-

@@ -32,12 +32,14 @@ type
     destructor Destroy; override;
     procedure Terminate; override;
     procedure UpdateResponse(AResponse: TResponse); override;
-    procedure InitSession(ARequest: TRequest; OnNewSession, OnExpired: TNotifyEvent); override;
+    procedure InitSession(ARequest: TRequest; OnNewSession, OnExpired: TNotifyEvent);
+      override;
     procedure InitResponse(AResponse: TResponse); override;
     procedure RemoveVariable(VariableName: string); override;
     function GetSessionDir: string;
     function isStarted: boolean;
-    function start(ARequest: TRequest; ARsponse: TResponse; OnNewSession: TNotifyEvent = nil; OnExpired: TNotifyEvent = nil): boolean;
+    function start(ARequest: TRequest; ARsponse: TResponse;
+      OnNewSession: TNotifyEvent = nil; OnExpired: TNotifyEvent = nil): boolean;
     function whenStarted: TDateTime;
   end;
 
@@ -188,10 +190,11 @@ end;
 
 function TSlimSession.isStarted: boolean;
 begin
-  result := FSessionStarted;
+  Result := FSessionStarted;
 end;
 
-function TSlimSession.start(ARequest: TRequest; ARsponse: TResponse; OnNewSession: TNotifyEvent; OnExpired: TNotifyEvent): boolean;
+function TSlimSession.start(ARequest: TRequest; ARsponse: TResponse;
+  OnNewSession: TNotifyEvent; OnExpired: TNotifyEvent): boolean;
 begin
   InitSession(ARequest, OnNewSession, OnExpired);
   InitResponse(ARsponse);
@@ -201,10 +204,10 @@ function TSlimSession.whenStarted: TDateTime;
 begin
   if assigned(FServerFile) then
   begin
-    result := FServerFile.ReadDateTime(SSession, KeyStart, 0);
+    Result := FServerFile.ReadDateTime(SSession, KeyStart, 0);
   end
   else
-    result := 0;
+    Result := 0;
 end;
 
 function TSlimSession.GetSessionID: string;
@@ -215,9 +218,11 @@ begin
   begin
     CreateGUID(GUID);
     SetLength(SID, 32);
-    StrLFmt(pchar(SID), 32, '%.8x%.4x%.4x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x', [longint(GUID.D1), GUID.D2, GUID.D3, GUID.D4[0], GUID.D4[1], GUID.D4[2], GUID.D4[3], GUID.D4[4], GUID.D4[5], GUID.D4[6], GUID.D4[7]]);
+    StrLFmt(PChar(SID), 32, '%.8x%.4x%.4x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x',
+      [longint(GUID.D1), GUID.D2, GUID.D3, GUID.D4[0], GUID.D4[1], GUID.D4[2],
+      GUID.D4[3], GUID.D4[4], GUID.D4[5], GUID.D4[6], GUID.D4[7]]);
   end;
-  result := SID;
+  Result := SID;
 end;
 
 procedure TSlimSession.UpdateIniFile;
@@ -334,7 +339,8 @@ begin
   FreeIniFile;
 end;
 
-procedure TSlimSession.InitSession(ARequest: TRequest; OnNewSession, OnExpired: TNotifyEvent);
+procedure TSlimSession.InitSession(ARequest: TRequest;
+  OnNewSession, OnExpired: TNotifyEvent);
 
 var
   S, FN: string;
