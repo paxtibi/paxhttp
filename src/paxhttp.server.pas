@@ -170,7 +170,9 @@ type
     procedure AddRoute(aMethod, aUrlPattern: string; delegate: TRoute);
     procedure AddRoute(aMethod, aUrlPattern: string; delegate: IRoute);
     procedure AddRoute(aMethod, aUrlPattern: string; delegate: TRouteMethod);
+    procedure ClearRouters;
     function getCandidates(aRequest: TRequest): TRouteContainerList;
+    function getRoutersList: TRouteContainerList;
     property BeforeServe: TServerRequestEvent read FBeforeServe write SetBeforeServe;
     property AfterServe: TServerRequestEvent read FAfterServe write SetAfterServe;
     property SessionHandler: TSessionMiddleware read GetSessionMiddleware;
@@ -239,7 +241,9 @@ end;
 procedure TSlimRequest.SetSession(AValue: TCustomSession);
 begin
   if FSession = AValue then
+  begin
     Exit;
+  end;
   FSession := AValue;
 end;
 
@@ -260,7 +264,9 @@ end;
 procedure TSessionMiddleware.SetSessionName(AValue: string);
 begin
   if FSessionName = AValue then
+  begin
     Exit;
+  end;
   FSessionName := AValue;
   SessionFactory.SessionCookie := FSessionName;
 end;
@@ -268,21 +274,27 @@ end;
 procedure TSessionMiddleware.SetAutoStart(AValue: boolean);
 begin
   if FAutoStart = AValue then
+  begin
     Exit;
+  end;
   FAutoStart := AValue;
 end;
 
 procedure TSessionMiddleware.SetExires(AValue: integer);
 begin
   if FExires = AValue then
+  begin
     Exit;
+  end;
   FExires := AValue;
 end;
 
 procedure TSessionMiddleware.SetSessionPath(AValue: string);
 begin
   if FSessionPath = AValue then
+  begin
     Exit;
+  end;
   FSessionPath := AValue;
   SessionFactory.SessionCookiePath := AValue;
 end;
@@ -290,7 +302,9 @@ end;
 procedure TSessionMiddleware.SetSessionStorePath(AValue: string);
 begin
   if FSessionStorePath = AValue then
+  begin
     Exit;
+  end;
   FSessionStorePath := AValue;
   TSlimSessionFactory(SessionFactory).SessionDir := AValue;
 end;
@@ -319,7 +333,9 @@ begin
     begin
       (session as TSlimSession).InitSession(ARequest, nil, nil);
       if FAutoStart then
+      begin
         (session as TSlimSession).InitResponse(AResponse);
+      end;
     end;
   end;
 end;
@@ -329,14 +345,18 @@ end;
 procedure TServerMiddleware.SetApplication(AValue: TCustomSlimHttpApplication);
 begin
   if FApplication = AValue then
+  begin
     Exit;
+  end;
   FApplication := AValue;
 end;
 
 procedure TServerMiddleware.SetActive(AValue: boolean);
 begin
   if FActive = AValue then
+  begin
     Exit;
+  end;
   FActive := AValue;
 end;
 
@@ -356,7 +376,9 @@ end;
 procedure TRouteContainerProcedure.SetTarget(AValue: TRouteProcedure);
 begin
   if FTarget = AValue then
+  begin
     Exit;
+  end;
   FTarget := AValue;
 end;
 
@@ -374,7 +396,9 @@ end;
 procedure TRouteContainerInterface.SetTarget(AValue: IRoute);
 begin
   if FTarget = AValue then
+  begin
     Exit;
+  end;
   FTarget := AValue;
 end;
 
@@ -392,7 +416,9 @@ end;
 procedure TRouteContainerObject.SetTarget(AValue: TRoute);
 begin
   if FTarget = AValue then
+  begin
     Exit;
+  end;
   FTarget := AValue;
 end;
 
@@ -410,7 +436,9 @@ end;
 procedure TRouteContainerMethod.SetTarget(AValue: TRouteMethod);
 begin
   if FTarget = AValue then
+  begin
     Exit;
+  end;
   FTarget := AValue;
 end;
 
@@ -427,10 +455,10 @@ end;
 
 class function TRouteContainer.produceURLPattern(AInputStr: string): string;
 var
-  regExp: TRegExpr;
+  regExp:    TRegExpr;
 var
-  PrevPos: PtrInt;
-  optional: string;
+  PrevPos:   PtrInt;
+  optional:  string;
   currentMatch: string;
   separator: string;
 begin
@@ -441,6 +469,7 @@ begin
     Result := '^';
     PrevPos := 1;
     if Exec(AInputStr) then
+    begin
       repeat
         optional := '';
         separator := '/';
@@ -457,11 +486,14 @@ begin
         begin
           optional := '?';
           if Match[0][2] <> '/' then
+          begin
             separator := '';
+          end;
         end;
         Result += '(' + separator + currentMatch + ')' + optional;
         PrevPos := MatchPos[0] + MatchLen[0];
       until not ExecNext;
+    end;
     Result := Result + System.Copy(AInputStr, PrevPos, MaxInt);
   end;
   regExp.Free;
@@ -478,6 +510,7 @@ begin
   with regExp do
   begin
     if Exec(AInputStr) then
+    begin
       repeat
         if MatchLen[4] = 0 then
         begin
@@ -488,6 +521,7 @@ begin
           Result.add(Match[2].Split(':')[0]);
         end;
       until not ExecNext;
+    end;
   end;
   regExp.Free;
 end;
@@ -514,14 +548,18 @@ end;
 procedure TRouteContainer.SetrequestMethod(AValue: string);
 begin
   if FrequestMethod = AValue then
+  begin
     Exit;
+  end;
   FrequestMethod := AValue;
 end;
 
 procedure TRouteContainer.SeturlPattern(AValue: string);
 begin
   if FurlPattern = AValue then
+  begin
     Exit;
+  end;
   FurlPattern := AValue;
   FreeAndNil(FRegExpr);
   FRegExpression := ProduceURLPattern(AValue);
@@ -530,13 +568,14 @@ end;
 
 function TRouteContainer.extractArgs(aRequest: TRequest): TStringList;
 var
-  idx: integer;
+  idx:  integer;
   args: TStringArray;
-  arg: string;
+  arg:  string;
 begin
   result := produceParameters(urlPattern);
   Result.LineBreak := '<BR>';
   if result.Count > 0 then
+  begin
     with FRegExpr do
     begin
       if Exec(getNormalizedUrl(aRequest.URL)) then
@@ -548,6 +587,7 @@ begin
         until not ExecNext;
       end;
     end;
+  end;
   args := aRequest.QueryString.Split('?');
   for arg in args do
   begin
@@ -582,8 +622,8 @@ end;
 procedure THTTPServerApplicationHandler.HandleRequest(ARequest: TRequest; AResponse: TResponse);
 var
   cwebapp: TCustomSlimHttpApplication;
-  list: TRouteContainerList;
-  route: TRouteContainer;
+  list:    TRouteContainerList;
+  route:   TRouteContainer;
   middleware: TServerMiddleware;
   stopProcess: boolean;
 begin
@@ -598,15 +638,21 @@ begin
     for middleware in cwebapp.FMiddleware do
     begin
       if middleware.invoke(ARequest, AResponse) then
+      begin
         break;
+      end;
     end;
     if not stopProcess then
     begin
       for route in list do
+      begin
         route.Execute(ARequest, AResponse);
+      end;
       try
         if list.Count = 0 then
+        begin
           inherited HandleRequest(ARequest, AResponse);
+        end;
       finally
         list.Free;
       end;
@@ -627,7 +673,9 @@ end;
 procedure TCustomSlimHttpApplication.SetAfterServe(AValue: TServerRequestEvent);
 begin
   if FAfterServe = AValue then
+  begin
     Exit;
+  end;
   FAfterServe := AValue;
 end;
 
@@ -644,7 +692,9 @@ end;
 procedure TCustomSlimHttpApplication.SetBeforeServe(AValue: TServerRequestEvent);
 begin
   if FBeforeServe = AValue then
+  begin
     Exit;
+  end;
   FBeforeServe := AValue;
 end;
 
@@ -666,8 +716,8 @@ end;
 destructor TCustomSlimHttpApplication.Destroy;
 begin
   inherited Destroy;
-  FRoutes.Free;
-  FMiddleware.Free;
+  FreeAndNil(FRoutes);
+  FreeAndNil(FMiddleware);
   DoneCriticalsection(FRoutesCriticalSection);
 end;
 
@@ -723,9 +773,16 @@ begin
   LeaveCriticalsection(FRoutesCriticalSection);
 end;
 
+procedure TCustomSlimHttpApplication.ClearRouters;
+begin
+  EnterCriticalsection(FRoutesCriticalSection);
+  FRoutes.Clear;
+  LeaveCriticalsection(FRoutesCriticalSection);
+end;
+
 function TCustomSlimHttpApplication.getCandidates(aRequest: TRequest): TRouteContainerList;
 var
-  c: TRouteContainer;
+  c:   TRouteContainer;
   url: string;
 begin
   url := aRequest.URL;
@@ -737,6 +794,11 @@ begin
       result.add(c);
     end;
   end;
+end;
+
+function TCustomSlimHttpApplication.getRoutersList: TRouteContainerList;
+begin
+  result := FRoutes;
 end;
 
 end.
