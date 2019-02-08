@@ -1,2 +1,5 @@
 # paxhttp
-To do
+
+[![Build Status](https://travis-ci.org/paxtibi/paxhttp.svg?branch=master)](https://travis-ci.org/paxtibi/paxhttp)
+
+to do
