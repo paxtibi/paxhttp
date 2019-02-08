@@ -4,7 +4,7 @@ unit paxhttp.client;
 interface
 
 uses
-  Classes, SysUtils, paxhttp.messages, paxhttp.encoders, ssockets, fgl;
+  Classes, SysUtils, paxhttp.Messages, paxhttp.encoders, ssockets, fgl;
 
 const
   ReadBufLen = 1024 * 10;
@@ -19,7 +19,8 @@ type
     Factive: boolean;
     procedure Setactive(AValue: boolean);
   protected
-    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean; virtual; abstract;
+    function process(aClient: TDefaultHttpClient; aRequest: THttpRequest;
+      aResponse: THttpResponse; args: TStrings): boolean; virtual; abstract;
   public
     constructor Create; virtual;
     property active: boolean read Factive write Setactive;
@@ -77,14 +78,18 @@ type
     procedure handleKeepConnection(var aRequest: THTTPRequest);
     function Terminated: boolean;
     procedure sendRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse); virtual;
-    procedure receiveResponse(aRequest: THTTPRequest; var aResponse: THTTPResponse); virtual;
+    procedure receiveResponse(aRequest: THTTPRequest;
+      var aResponse: THTTPResponse); virtual;
     procedure resetResponse(var aResponse: THTTPResponse); virtual;
     function isSSL(aValue: string): boolean;
-    function processNormalRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
-    function processKeepAliveRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
+    function processNormalRequest(aRequest: THTTPRequest;
+      var aResponse: THTTPResponse): word;
+    function processKeepAliveRequest(aRequest: THTTPRequest;
+      var aResponse: THTTPResponse): word;
     function getServerUrl(ARequest: THTTPRequest): string;
   protected
-    function performRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word; virtual;
+    function performRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
+      virtual;
   public
     constructor Create;
     destructor Destroy; override;
@@ -100,15 +105,15 @@ type
     property Ajax: boolean read GetAjax write SetAjax;
     property Redirect: TMiddleware read FRedirect;
 
-    property Authorization: TAuthorizationMiddleware read FAuthorization write FAuthorization;
+    property Authorization: TAuthorizationMiddleware
+      read FAuthorization write FAuthorization;
     property Proxy: TAuthorizationMiddleware read FProxy;
   end;
 
 implementation
 
 uses
-  base64, paxhttp.middlewares, paxlog
-  {$if not defined(hasamiga)}
+  base64, paxhttp.middlewares  {$if not defined(hasamiga)}
   , sslsockets
 {$endif} ;
 
@@ -195,15 +200,17 @@ var
   headerString: string;
   header: THTTPHeader;
 begin
-  buffer := (uppercase(aRequest.Method) + ' ' + getServerUrl(aRequest) + ' HTTP/' + aRequest.Version) + CRLF;
-  if Assigned(aRequest.Body) and (StrToInt64Def(aRequest.getHeader('Content-Length'), -1) = -1) then
+  buffer := (uppercase(aRequest.Method) + ' ' + getServerUrl(aRequest) +
+    ' HTTP/' + aRequest.Version) + CRLF;
+  if Assigned(aRequest.Body) and
+    (StrToInt64Def(aRequest.getHeader('Content-Length'), -1) = -1) then
     aRequest.setHeader('Content-Length', aRequest.Body.Size.ToString);
   for header in aRequest.getHeaders() do
   begin
     headerString := header.toString;
     buffer += headerString + CRLF;
   end;
-  result := Buffer + CRLF;
+  Result := Buffer + CRLF;
 end;
 
 procedure TDefaultHTTPClient.handleKeepConnection(var aRequest: THTTPRequest);
@@ -216,7 +223,7 @@ end;
 
 function TDefaultHTTPClient.Terminated: boolean;
 begin
-  result := FTerminated;
+  Result := FTerminated;
 end;
 
 constructor TDefaultHTTPClient.Create;
@@ -251,7 +258,7 @@ end;
 destructor TDefaultHTTPClient.Destroy;
 var
   idx: integer;
-  m:   TMiddleware;
+  m: TMiddleware;
 begin
   disconnect;
   for idx := FPreprocessList.Count - 1 downto 0 do
@@ -270,25 +277,26 @@ begin
   inherited Destroy;
 end;
 
-procedure TDefaultHTTPClient.sendRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse);
+procedure TDefaultHTTPClient.sendRequest(aRequest: THTTPRequest;
+  var aResponse: THTTPResponse);
 var
   Buffer: string;
 begin
-  TLogLogger.GetLogger('HTTP').Enter(self, 'sendRequest');
+  //TLogLogger.GetLogger('HTTP').Enter(self, 'sendRequest');
   Buffer := prepareHeader(aRequest);
   FTerminated := False;
-  TLogLogger.GetLogger('HTTP').Trace(Buffer);
+  //TLogLogger.GetLogger('HTTP').Trace(Buffer);
   if not Terminated then
   begin
-    FSocket.WriteBuffer(pchar(Buffer)^, Length(Buffer));
+    FSocket.WriteBuffer(PChar(Buffer)^, Length(Buffer));
   end;
   if Assigned(aRequest.Body) and not Terminated then
   begin
-    TLogLogger.GetLogger('HTTP').Trace(aRequest.Body);
+    //TLogLogger.GetLogger('HTTP').Trace(aRequest.Body);
     aRequest.Body.Position := 0;
     FSocket.CopyFrom(aRequest.Body, aRequest.Body.Size);
   end;
-  TLogLogger.GetLogger('HTTP').Leave(self, 'sendRequest');
+  //TLogLogger.GetLogger('HTTP').Leave(self, 'sendRequest');
 end;
 
 function TDefaultHTTPClient.ReadString(out StringResult: string): boolean;
@@ -313,7 +321,7 @@ function TDefaultHTTPClient.ReadString(out StringResult: string): boolean;
 
 var
   CheckLF: boolean;
-  P, L:    integer;
+  P, L: integer;
 begin
   StringResult := '';
   Result := False;
@@ -325,15 +333,15 @@ begin
     if Length(FBuffer) = 0 then
       Result := True
     else if CheckLF then
+    begin
+      if (FBuffer[1] <> #10) then
+        StringResult := StringResult + #13
+      else
       begin
-        if (FBuffer[1] <> #10) then
-          StringResult := StringResult + #13
-        else
-        begin
-          System.Delete(FBuffer, 1, 1);
-          Result := True;
-        end;
+        System.Delete(FBuffer, 1, 1);
+        Result := True;
       end;
+    end;
     if not Result then
     begin
       P := Pos(#13#10, FBuffer);
@@ -377,7 +385,7 @@ end;
 
 function TDefaultHTTPClient.GetAjax: boolean;
 begin
-  result := FAjaxMiddleware.active;
+  Result := FAjaxMiddleware.active;
 end;
 
 procedure TDefaultHTTPClient.SetAjax(AValue: boolean);
@@ -399,7 +407,8 @@ begin
   FTimeOut := AValue;
 end;
 
-function TDefaultHTTPClient.ParseStatusLine(var AResponse: THTTPResponse; AStatusLine: string): integer;
+function TDefaultHTTPClient.ParseStatusLine(var AResponse: THTTPResponse;
+  AStatusLine: string): integer;
 var
   S: string;
 begin
@@ -420,22 +429,23 @@ function TDefaultHTTPClient.ReadResponseHeaders(var AResponse: THTTPResponse): i
 var
   StatusLine, S: string;
 begin
-  TLogLogger.GetLogger('HTTP').Enter(self, 'ReadResponseHeaders');
+  //TLogLogger.GetLogger('HTTP').Enter(self, 'ReadResponseHeaders');
   if not ReadString(StatusLine) then
     Exit(0);
   Result := ParseStatusLine(AResponse, StatusLine);
-  TLogLogger.GetLogger('HTTP').Trace(StatusLine);
+  //TLogLogger.GetLogger('HTTP').Trace(StatusLine);
   repeat
     if ReadString(S) and (S <> '') then
     begin
       AResponse.getHeaders.Add(S);
-      TLogLogger.GetLogger('HTTP').Trace(S);
+      //TLogLogger.GetLogger('HTTP').Trace(S);
     end
   until (S = '') or Terminated;
-  TLogLogger.GetLogger('HTTP').Leave(self, 'ReadResponseHeaders');
+  //TLogLogger.GetLogger('HTTP').Leave(self, 'ReadResponseHeaders');
 end;
 
-procedure TDefaultHTTPClient.receiveResponse(aRequest: THTTPRequest; var aResponse: THTTPResponse);
+procedure TDefaultHTTPClient.receiveResponse(aRequest: THTTPRequest;
+  var aResponse: THTTPResponse);
 
 
   function Transfer(LB: integer): integer;
@@ -493,10 +503,10 @@ procedure TDefaultHTTPClient.receiveResponse(aRequest: THTTPRequest; var aRespon
         if l > Cnt then
           l := Cnt;
         System.Move(FBuffer[BufPos], Data^, l);
-        inc(BufPos, l);
-        inc(Data, l);
-        inc(Result, l);
-        dec(Cnt, l);
+        Inc(BufPos, l);
+        Inc(Data, l);
+        Inc(Result, l);
+        Dec(Cnt, l);
       end;
     end;
 
@@ -513,9 +523,9 @@ procedure TDefaultHTTPClient.receiveResponse(aRequest: THTTPRequest; var aRespon
         if ReadData(@c, 1) < 1 then
           exit;
         case c of
-          '0'..'9': ChunkSize := ChunkSize * 16 + ord(c) - ord('0');
-          'a'..'f': ChunkSize := ChunkSize * 16 + ord(c) - ord('a') + 10;
-          'A'..'F': ChunkSize := ChunkSize * 16 + ord(c) - ord('A') + 10;
+          '0'..'9': ChunkSize := ChunkSize * 16 + Ord(c) - Ord('0');
+          'a'..'f': ChunkSize := ChunkSize * 16 + Ord(c) - Ord('a') + 10;
+          'A'..'F': ChunkSize := ChunkSize * 16 + Ord(c) - Ord('A') + 10;
           else
             break;
         end;
@@ -542,8 +552,8 @@ procedure TDefaultHTTPClient.receiveResponse(aRequest: THTTPRequest; var aRespon
         begin
           // copy chunk data to output
           aResponse.Body.Write(FBuffer[BufPos], l);
-          inc(BufPos, l);
-          dec(ChunkSize, l);
+          Inc(BufPos, l);
+          Dec(ChunkSize, l);
         end;
       until ChunkSize = 0;
       // read #13#10
@@ -568,7 +578,7 @@ var
   ResponseStatusCode: word;
   Result: boolean;
 begin
-  TLogLogger.GetLogger('HTTP').Enter(self, 'receiveResponse');
+  //TLogLogger.GetLogger('HTTP').Enter(self, 'receiveResponse');
   resetResponse(aResponse);
   SetLength(FBuffer, 0);
   ResponseStatusCode := ReadResponseHeaders(aResponse);
@@ -597,21 +607,22 @@ begin
         contentLength := contentLength - Readed;
       until (contentLength = 0) or (Readed = 0) or Terminated;
     end
-    else if (contentLength < 0) and (not ((ResponseStatusCode div 100) = 1) or ((ResponseStatusCode = 204) or (ResponseStatusCode = 304))) then
-      begin
-        repeat
-          Readed := Transfer(ReadBufLen);
-        until (Readed = 0) or Terminated;
-      end;
+    else if (contentLength < 0) and (not ((ResponseStatusCode div 100) = 1) or
+      ((ResponseStatusCode = 204) or (ResponseStatusCode = 304))) then
+    begin
+      repeat
+        Readed := Transfer(ReadBufLen);
+      until (Readed = 0) or Terminated;
+    end;
   end;
   aResponse.Body.Seek(0, 0);
-  TLogLogger.GetLogger('HTTP').Trace(aResponse.Body);
-  TLogLogger.GetLogger('HTTP').Leave(self, 'receiveResponse');
+  //TLogLogger.GetLogger('HTTP').Trace(aResponse.Body);
+  //TLogLogger.GetLogger('HTTP').Leave(self, 'receiveResponse');
 end;
 
 procedure TDefaultHTTPClient.resetResponse(var aResponse: THTTPResponse);
 begin
-  aResponse.getHeaders.clear;
+  aResponse.getHeaders.Clear;
   aResponse.Body := TMemoryStream.Create;
   aResponse.StatusCode := 0;
   aResponse.StatusLine := '';
@@ -619,10 +630,11 @@ end;
 
 function TDefaultHTTPClient.isSSL(aValue: string): boolean;
 begin
-  result := 'https' = aValue;
+  Result := 'https' = aValue;
 end;
 
-function TDefaultHTTPClient.processNormalRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
+function TDefaultHTTPClient.processNormalRequest(aRequest: THTTPRequest;
+  var aResponse: THTTPResponse): word;
 var
   loop: boolean;
   middleware: TMiddleware;
@@ -644,11 +656,12 @@ begin
     end;
   until not loop;
   FreeAndNil(args);
-  result := aResponse.StatusCode;
+  Result := aResponse.StatusCode;
   disconnect;
 end;
 
-function TDefaultHTTPClient.processKeepAliveRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
+function TDefaultHTTPClient.processKeepAliveRequest(aRequest: THTTPRequest;
+  var aResponse: THTTPResponse): word;
 var
   loop: boolean;
   middleware: TMiddleware;
@@ -680,12 +693,12 @@ begin
     disconnect;
   until not loop;
   FreeAndNil(args);
-  result := aResponse.StatusCode;
+  Result := aResponse.StatusCode;
 end;
 
 function TDefaultHTTPClient.getServerUrl(ARequest: THTTPRequest): string;
 begin
-  result := ARequest.URL.getServerUrl;
+  Result := ARequest.URL.getServerUrl;
 end;
 
 procedure TDefaultHTTPClient.AbortRequest;
@@ -693,7 +706,8 @@ begin
   FTerminated := True;
 end;
 
-function TDefaultHTTPClient.request(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
+function TDefaultHTTPClient.request(aRequest: THTTPRequest;
+  var aResponse: THTTPResponse): word;
 var
   e: TEncoder;
   encodedRequest: THttpRequest = nil;
@@ -706,17 +720,18 @@ begin
     if encodedRequest <> nil then
     begin
       encodedRequest.setHeader(ContentLength, encodedRequest.Body.Size.ToString);
-      result := performRequest(encodedRequest, aResponse);
+      Result := performRequest(encodedRequest, aResponse);
       FreeAndNil(encodedRequest);
     end;
   end
   else
   begin
-    result := performRequest(aRequest, aResponse);
+    Result := performRequest(aRequest, aResponse);
   end;
 end;
 
-function TDefaultHTTPClient.performRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
+function TDefaultHTTPClient.performRequest(aRequest: THTTPRequest;
+  var aResponse: THTTPResponse): word;
 begin
   if FKeepConnection then
     Result := processKeepAliveRequest(aRequest, aResponse)
