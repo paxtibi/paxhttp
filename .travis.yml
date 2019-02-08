@@ -25,7 +25,6 @@ install:
 
 script:
   - lazbuild pck/paxhttp_package.lpk 
-  - ls -1 bin/*
 
 notifications:
   email:
