@@ -14,38 +14,47 @@ uses
 const
   Accept = 'Accept';//    Accept: text/html  Permanent
   AcceptCharset = 'Accept-Charset';//    Accept-Charset: utf-8  Permanent
-  AcceptDatetime = 'Accept-Datetime';//    Accept-Datetime: Thu, 31 May 2007 20:35:00 GMT  Provisional
+  AcceptDatetime = 'Accept-Datetime';
+  //    Accept-Datetime: Thu, 31 May 2007 20:35:00 GMT  Provisional
   AcceptEncoding = 'Accept-Encoding';//    Accept-Encoding: gzip, deflate  Permanent
   AcceptLanguage = 'Accept-Language';//    Accept-Language: en-US  Permanent
   AccessControlRequestHeaders = 'Access-Control-Request-Headers';
-  AccessControlRequestMethod = 'Access-Control-Request-Method';//    Access-Control-Request-Method: GET  Permanent: standard
+  AccessControlRequestMethod = 'Access-Control-Request-Method';
+  //    Access-Control-Request-Method: GET  Permanent: standard
   AIM = 'A-IM';//    A-IM: feed  Permanent
-  Authorization = 'Authorization';//    Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==  Permanent
+  Authorization = 'Authorization';
+  //    Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==  Permanent
   CacheControl = 'Cache-Control';//    Cache-Control: no-cache  Permanent
   Connection = 'Connection';//    Connection: keep-alive  Permanent
   ContentDisposition = 'Content-Disposition';
   ContentLength = 'Content-Length';//    Content-Length: 348  Permanent
   ContentMD5 = 'Content-MD5';//    Content-MD5: Q2hlY2sgSW50ZWdyaXR5IQ==  Obsolete[11]
-  ContentType = 'Content-Type';//    Content-Type: application/x-www-form-urlencoded  Permanent
+  ContentType = 'Content-Type';
+  //    Content-Type: application/x-www-form-urlencoded  Permanent
   ContentTransferEncoding = 'Content-Transfer-Encoding';
   Cookie = 'Cookie';//    Cookie: $Version=1; Skin=new;  Permanent: standard
   Date = 'Date';//    Date: Tue, 15 Nov 1994 08:12:31 GMT  Permanent
   DNT = 'DNT';//    DNT: 1 (Do Not Track Enabled)
   Expect = 'Expect';//    Expect: 100-continue  Permanent
-  Forwarded = 'Forwarded';//    Forwarded: for=192.0.2.60;proto=http;by=203.0.113.43 Forwarded: for=192.0.2.43, for=198.51.100.17  Permanent
+  Forwarded = 'Forwarded';
+  //    Forwarded: for=192.0.2.60;proto=http;by=203.0.113.43 Forwarded: for=192.0.2.43, for=198.51.100.17  Permanent
   From = 'From';//    From: user@example.com  Permanent
   FrontEndHttps = 'Front-End-Https';//    Front-End-Https: on
   Host = 'Host';//    Host: en.wikipedia.org:8080  Permanent
   IfMatch = 'If-Match';//    If-Match: "737060cd8c284d8af7ad3082f209582d"  Permanent
-  IfModifiedSince = 'If-Modified-Since';//    If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT  Permanent
-  IfNoneMatch = 'If-None-Match';//    If-None-Match: "737060cd8c284d8af7ad3082f209582d"  Permanent
+  IfModifiedSince = 'If-Modified-Since';
+  //    If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT  Permanent
+  IfNoneMatch = 'If-None-Match';
+  //    If-None-Match: "737060cd8c284d8af7ad3082f209582d"  Permanent
   IfRange = 'If-Range';//    If-Range: "737060cd8c284d8af7ad3082f209582d"  Permanent
-  IfUnmodifiedSince = 'If-Unmodified-Since';//    If-Unmodified-Since: Sat, 29 Oct 1994 19:43:31 GMT  Permanent
+  IfUnmodifiedSince = 'If-Unmodified-Since';
+  //    If-Unmodified-Since: Sat, 29 Oct 1994 19:43:31 GMT  Permanent
   MaxForwards = 'Max-Forwards';//    Max-Forwards: 10  Permanent
   Origin = 'Origin';//    Origin: http://www.example-social-network.com  Permanent: standard
   pgradeInsecureRequests = 'pgrade-Insecure-Requests';//    Upgrade-Insecure-Requests: 1
   Pragma = 'Pragma';//    Pragma: no-cache  Permanent
-  ProxyAuthorization = 'Proxy-Authorization';//    Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==  Permanent
+  ProxyAuthorization = 'Proxy-Authorization';
+  //    Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==  Permanent
   ProxyConnection = 'Proxy-Connection';//    Proxy-Connection: keep-alive
   Range = 'Range';//    Range: bytes=500-999  Permanent
   Referer = 'Referer';//    Referer: http://en.wikipedia.org/wiki/Main_Page  Permanent
@@ -54,7 +63,8 @@ const
   TE = 'TE';//    TE: trailers, deflate  Permanent
   TransferEncoding = 'Transfer-Encoding';
   Upgrade = 'Upgrade';//    Upgrade: h2c, HTTPS/1.3, IRC/6.9, RTA/x11, websocket  Permanent
-  UserAgent = 'User-Agent';//    User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0  Permanent
+  UserAgent = 'User-Agent';
+  //    User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0  Permanent
   Via = 'Via';//    Via: 1.0 fred, 1.1 example.com (Apache/1.1)  Permanent
   Warning = 'Warning';//    Warning: 199 Miscellaneous warning  Permanent
   XATTDeviceId = 'X-ATT-DeviceId';//    X-Att-Deviceid: GT-P7320/P7320XXLPG
@@ -67,7 +77,8 @@ const
   XRequestedWith = 'X-Requested-With';//    X-Requested-With: XMLHttpRequest
   XRequestID = 'X-Request-ID';//    X-Request-ID: f058ebd6-02f7-4d3f-942e-904344e8cde5
   XUIDH = 'X-UIDH';//    X-UIDH: ...
-  XWapProfile = 'X-Wap-Profile';//    x-wap-profile: http://wap.samsungmobile.com/uaprof/SGH-I777.xml
+  XWapProfile = 'X-Wap-Profile';
+//    x-wap-profile: http://wap.samsungmobile.com/uaprof/SGH-I777.xml
 
 
 type
@@ -954,4 +965,3 @@ end;
 
 
 end.
-

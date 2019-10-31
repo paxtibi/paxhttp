@@ -15,7 +15,7 @@
     </CompilerOptions>
     <Description Value="HTTP Handler"/>
     <Version Release="1"/>
-    <Files Count="6">
+    <Files Count="7">
       <Item1>
         <Filename Value="..\src\paxhttp.client.pas"/>
         <UnitName Value="paxhttp.client"/>
@@ -26,7 +26,7 @@
       </Item2>
       <Item3>
         <Filename Value="..\src\paxhttp.messages.pas"/>
-        <UnitName Value="paxhttp.messages"/>
+        <UnitName Value="paxhttp.Messages"/>
       </Item3>
       <Item4>
         <Filename Value="..\src\paxhttp.middlewares.pas"/>
@@ -40,6 +40,10 @@
         <Filename Value="..\src\paxhttp.server.sessions.pas"/>
         <UnitName Value="paxhttp.server.sessions"/>
       </Item6>
+      <Item7>
+        <Filename Value="..\src\paxhttp.jwt.pas"/>
+        <UnitName Value="paxhttp.jwt"/>
+      </Item7>
     </Files>
     <RequiredPkgs Count="1">
       <Item1>

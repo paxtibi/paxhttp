@@ -6,7 +6,7 @@ uses
   Classes,
   consoletestrunner,
   Match,
-  paxhttp_package;
+  paxhttp_package, ssl, paxtibi.openssl;
 
 type
 

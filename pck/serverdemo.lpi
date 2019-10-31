@@ -4,12 +4,19 @@
     <Version Value="10"/>
     <PathDelim Value="\"/>
     <General>
+      <Flags>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasScaledStatement Value="False"/>
+      </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="ServerTest"/>
+      <Title Value="ServerDemo"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
     </BuildModes>
@@ -19,49 +26,29 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-a"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="3">
-      <Item1>
-        <PackageName Value="paxjson_package"/>
-      </Item1>
-      <Item2>
-        <PackageName Value="paxhttp_package"/>
-      </Item2>
-      <Item3>
-        <PackageName Value="FCL"/>
-      </Item3>
-    </RequiredPackages>
-    <Units Count="4">
+    <Units Count="2">
       <Unit0>
-        <Filename Value="ServerTest.lpr"/>
+        <Filename Value="serverdemo.lpr"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="server"/>
       </Unit0>
       <Unit1>
-        <Filename Value="..\src\test\match.pas"/>
+        <Filename Value="..\src\paxhttp.jwt.claims.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="Match"/>
       </Unit1>
-      <Unit2>
-        <Filename Value="..\src\test\ssl.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit2>
-      <Unit3>
-        <Filename Value="..\src\paxtibi.openssl.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\ServerTest"/>
+      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\serverdemo"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\src\test;..\src"/>
+      <OtherUnitFiles Value="..\src"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

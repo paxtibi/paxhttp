@@ -119,48 +119,18 @@ type
 
   TServerRequestEvent = procedure(Sender: TObject; ARequest: TRequest; AResponse: TResponse) of object;
 
-  { TSessionMiddleware }
-
-  TSessionMiddleware = class(TServerMiddleware)
-  private
-    FAutoStart: boolean;
-    FExires: integer;
-    FSessionName: string;
-    FSessionPath: string;
-    FSessionStorePath: string;
-    procedure SetAutoStart(AValue: boolean);
-    procedure SetExires(AValue: integer);
-    procedure SetSessionName(AValue: string);
-    procedure SetSessionPath(AValue: string);
-    procedure SetSessionStorePath(AValue: string);
-  protected
-    function invoke(ARequest: TRequest; AResponse: TResponse): boolean; override;
-  public
-    constructor Create(anApplication: TCustomSlimHttpApplication); override;
-    property AutoStart: boolean read FAutoStart write SetAutoStart;
-    property SessionName: string read FSessionName write SetSessionName;
-    property SessionPath: string read FSessionPath write SetSessionPath;
-    property SessionStorePath: string read FSessionStorePath write SetSessionStorePath;
-    property Exires: integer read FExires write SetExires;
-  end;
-
   { TCustomSlimHttpApplication }
 
   TCustomSlimHttpApplication = class(TCustomHTTPApplication)
   private
     FAfterServe: TServerRequestEvent;
     FBeforeServe: TServerRequestEvent;
-    FSession: TCustomSession;
-    FSessionPath: string;
-    FSessions: boolean;
-    function GetSessionMiddleware: TSessionMiddleware;
     procedure SetAfterServe(AValue: TServerRequestEvent);
     procedure SetBeforeServe(AValue: TServerRequestEvent);
   protected
     FRoutesCriticalSection: TRTLCriticalSection;
     FRoutes: TRouteContainerList;
     FMiddleware: TServerMiddlewareList;
-    FSessionMiddleware: TSessionMiddleware;
     function InitializeWebHandler: TWebHandler; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -175,7 +145,6 @@ type
     function getRoutersList: TRouteContainerList;
     property BeforeServe: TServerRequestEvent read FBeforeServe write SetBeforeServe;
     property AfterServe: TServerRequestEvent read FAfterServe write SetAfterServe;
-    property SessionHandler: TSessionMiddleware read GetSessionMiddleware;
   end;
 
   { TSlimEmbeddedHttpServer }
@@ -193,7 +162,7 @@ type
     procedure SetSession(AValue: TCustomSession);
   public
     constructor Create; override;
-    destructor destroy; override;
+    destructor Destroy; override;
     property Session: TCustomSession read FSession write SetSession;
   end;
 
@@ -212,7 +181,7 @@ procedure defaultFavIcon(aReq: TRequest; aResp: TResponse; args: TStrings);
 implementation
 
 uses
-  fphttp, paxhttp.server.sessions;
+  fphttp;
 
 const
   RegString = '(\[?\/?\{([\w_][\w\d_-]*|[\w_][\w\d_-]*(:"(.*)"))\}\]?)';
@@ -253,91 +222,10 @@ begin
   FSession := nil;
 end;
 
-destructor TSlimRequest.destroy;
+destructor TSlimRequest.Destroy;
 begin
   FreeAndNil(FSession);
-  inherited destroy;
-end;
-
-{ TSessionMiddleware }
-
-procedure TSessionMiddleware.SetSessionName(AValue: string);
-begin
-  if FSessionName = AValue then
-  begin
-    Exit;
-  end;
-  FSessionName := AValue;
-  SessionFactory.SessionCookie := FSessionName;
-end;
-
-procedure TSessionMiddleware.SetAutoStart(AValue: boolean);
-begin
-  if FAutoStart = AValue then
-  begin
-    Exit;
-  end;
-  FAutoStart := AValue;
-end;
-
-procedure TSessionMiddleware.SetExires(AValue: integer);
-begin
-  if FExires = AValue then
-  begin
-    Exit;
-  end;
-  FExires := AValue;
-end;
-
-procedure TSessionMiddleware.SetSessionPath(AValue: string);
-begin
-  if FSessionPath = AValue then
-  begin
-    Exit;
-  end;
-  FSessionPath := AValue;
-  SessionFactory.SessionCookiePath := AValue;
-end;
-
-procedure TSessionMiddleware.SetSessionStorePath(AValue: string);
-begin
-  if FSessionStorePath = AValue then
-  begin
-    Exit;
-  end;
-  FSessionStorePath := AValue;
-  TSlimSessionFactory(SessionFactory).SessionDir := AValue;
-end;
-
-constructor TSessionMiddleware.Create(anApplication: TCustomSlimHttpApplication);
-begin
-  inherited Create(anApplication);
-  FAutoStart := False;
-  FExires := -1;
-end;
-
-function TSessionMiddleware.invoke(ARequest: TRequest; AResponse: TResponse): boolean;
-var
-  session: TCustomSession;
-begin
-  result := inherited invoke(ARequest, AResponse);
-  if FActive then
-  begin
-    session := SessionFactory.CreateSession(ARequest);
-    if Exires > 0 then
-    begin
-      (Session as TSlimSession).TimeoutMinutes := Exires;
-    end;
-    (ARequest as TSlimRequest).Session := session;
-    if (ARequest is TSlimRequest) then
-    begin
-      (session as TSlimSession).InitSession(ARequest, nil, nil);
-      if FAutoStart then
-      begin
-        (session as TSlimSession).InitResponse(AResponse);
-      end;
-    end;
-  end;
+  inherited Destroy;
 end;
 
 { TServerMiddleware }
@@ -368,7 +256,7 @@ end;
 
 function TServerMiddleware.invoke(ARequest: TRequest; AResponse: TResponse): boolean;
 begin
-  result := False;
+  Result := False;
 end;
 
 { TRouteContainerProcedure }
@@ -455,10 +343,10 @@ end;
 
 class function TRouteContainer.produceURLPattern(AInputStr: string): string;
 var
-  regExp:    TRegExpr;
+  regExp: TRegExpr;
 var
-  PrevPos:   PtrInt;
-  optional:  string;
+  PrevPos: PtrInt;
+  optional: string;
   currentMatch: string;
   separator: string;
 begin
@@ -528,21 +416,21 @@ end;
 
 function TRouteContainer.getNormalizedUrl(aUrl: string): string;
 begin
-  result := aUrl;
-  if Pos('?', result) > 0 then
+  Result := aUrl;
+  if Pos('?', Result) > 0 then
   begin
-    delete(result, Pos('?', Result), length(result));
+    Delete(Result, Pos('?', Result), length(Result));
   end;
-  if Pos('#', result) > 0 then
+  if Pos('#', Result) > 0 then
   begin
-    delete(result, Pos('#', result), length(result));
+    Delete(Result, Pos('#', Result), length(Result));
   end;
-  result := StringReplace(result, '//', '/', [rfReplaceAll]);
+  Result := StringReplace(Result, '//', '/', [rfReplaceAll]);
 end;
 
 function TRouteContainer.urlMatchPattern(aUrl: string): boolean;
 begin
-  result := FRegExpr.Exec(getNormalizedUrl(aUrl));
+  Result := FRegExpr.Exec(getNormalizedUrl(aUrl));
 end;
 
 procedure TRouteContainer.SetrequestMethod(AValue: string);
@@ -568,13 +456,13 @@ end;
 
 function TRouteContainer.extractArgs(aRequest: TRequest): TStringList;
 var
-  idx:  integer;
+  idx: integer;
   args: TStringArray;
-  arg:  string;
+  arg: string;
 begin
-  result := produceParameters(urlPattern);
+  Result := produceParameters(urlPattern);
   Result.LineBreak := '<BR>';
-  if result.Count > 0 then
+  if Result.Count > 0 then
   begin
     with FRegExpr do
     begin
@@ -582,7 +470,7 @@ begin
       begin
         idx := 0;
         repeat
-          result[idx] := result[idx] + '=' + Copy(Match[1], 2, Length(Match[1]));
+          Result[idx] := Result[idx] + '=' + Copy(Match[1], 2, Length(Match[1]));
           idx += 1;
         until not ExecNext;
       end;
@@ -591,7 +479,7 @@ begin
   args := aRequest.QueryString.Split('?');
   for arg in args do
   begin
-    result.Add(arg);
+    Result.Add(arg);
   end;
 end;
 
@@ -622,8 +510,8 @@ end;
 procedure THTTPServerApplicationHandler.HandleRequest(ARequest: TRequest; AResponse: TResponse);
 var
   cwebapp: TCustomSlimHttpApplication;
-  list:    TRouteContainerList;
-  route:   TRouteContainer;
+  list: TRouteContainerList;
+  route: TRouteContainer;
   middleware: TServerMiddleware;
   stopProcess: boolean;
 begin
@@ -679,16 +567,6 @@ begin
   FAfterServe := AValue;
 end;
 
-function TCustomSlimHttpApplication.GetSessionMiddleware: TSessionMiddleware;
-begin
-  if FSessionMiddleware = nil then
-  begin
-    FSessionMiddleware := TSessionMiddleware.Create(self);
-    FMiddleware.Add(FSessionMiddleware);
-  end;
-  result := FSessionMiddleware;
-end;
-
 procedure TCustomSlimHttpApplication.SetBeforeServe(AValue: TServerRequestEvent);
 begin
   if FBeforeServe = AValue then
@@ -710,7 +588,6 @@ begin
   InitCriticalSection(FRoutesCriticalSection);
   FRoutes := TRouteContainerList.Create(True);
   FMiddleware := TServerMiddlewareList.Create(True);
-  FMiddleware.Add(TSessionMiddleware.Create(self));
 end;
 
 destructor TCustomSlimHttpApplication.Destroy;
@@ -782,23 +659,23 @@ end;
 
 function TCustomSlimHttpApplication.getCandidates(aRequest: TRequest): TRouteContainerList;
 var
-  c:   TRouteContainer;
+  c: TRouteContainer;
   url: string;
 begin
   url := aRequest.URL;
-  result := TRouteContainerList.Create(False);
+  Result := TRouteContainerList.Create(False);
   for c in FRoutes do
   begin
     if (compareText(c.requestMethod, aRequest.Method) = 0) and (c.urlMatchPattern(URL)) then
     begin
-      result.add(c);
+      Result.add(c);
     end;
   end;
 end;
 
 function TCustomSlimHttpApplication.getRoutersList: TRouteContainerList;
 begin
-  result := FRoutes;
+  Result := FRoutes;
 end;
 
 end.

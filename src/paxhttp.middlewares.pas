@@ -233,8 +233,7 @@ function TBasicAuthorizationRequestPreprocess.process(aClient: TDefaultHttpClien
   aRequest: THttpRequest; aResponse: THttpResponse; args: TStrings): boolean;
 begin
   if active then
-    aRequest.setHeader('Authorization', Format('Basic %s',
-      [EncodeStringBase64(UserName + ':' + Password)]));
+    aRequest.setHeader('Authorization', Format('Basic %s', [EncodeStringBase64(UserName + ':' + Password)]));
 end;
 
 { TCorrelationIdPreprocess }
