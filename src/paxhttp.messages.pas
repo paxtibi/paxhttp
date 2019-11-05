@@ -12,7 +12,7 @@ uses
   Classes, SysUtils, fgl;
 
 const
-  Accept = 'Accept';//    Accept: text/html  Permanent
+  Accept  = 'Accept';//    Accept: text/html  Permanent
   AcceptCharset = 'Accept-Charset';//    Accept-Charset: utf-8  Permanent
   AcceptDatetime = 'Accept-Datetime';
   //    Accept-Datetime: Thu, 31 May 2007 20:35:00 GMT  Provisional
@@ -21,7 +21,7 @@ const
   AccessControlRequestHeaders = 'Access-Control-Request-Headers';
   AccessControlRequestMethod = 'Access-Control-Request-Method';
   //    Access-Control-Request-Method: GET  Permanent: standard
-  AIM = 'A-IM';//    A-IM: feed  Permanent
+  AIM     = 'A-IM';//    A-IM: feed  Permanent
   Authorization = 'Authorization';
   //    Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==  Permanent
   CacheControl = 'Cache-Control';//    Cache-Control: no-cache  Permanent
@@ -32,15 +32,15 @@ const
   ContentType = 'Content-Type';
   //    Content-Type: application/x-www-form-urlencoded  Permanent
   ContentTransferEncoding = 'Content-Transfer-Encoding';
-  Cookie = 'Cookie';//    Cookie: $Version=1; Skin=new;  Permanent: standard
-  Date = 'Date';//    Date: Tue, 15 Nov 1994 08:12:31 GMT  Permanent
-  DNT = 'DNT';//    DNT: 1 (Do Not Track Enabled)
-  Expect = 'Expect';//    Expect: 100-continue  Permanent
+  Cookie  = 'Cookie';//    Cookie: $Version=1; Skin=new;  Permanent: standard
+  Date    = 'Date';  //    Date: Tue, 15 Nov 1994 08:12:31 GMT  Permanent
+  DNT     = 'DNT';   //    DNT: 1 (Do Not Track Enabled)
+  Expect  = 'Expect';//    Expect: 100-continue  Permanent
   Forwarded = 'Forwarded';
   //    Forwarded: for=192.0.2.60;proto=http;by=203.0.113.43 Forwarded: for=192.0.2.43, for=198.51.100.17  Permanent
-  From = 'From';//    From: user@example.com  Permanent
+  From    = 'From';//    From: user@example.com  Permanent
   FrontEndHttps = 'Front-End-Https';//    Front-End-Https: on
-  Host = 'Host';//    Host: en.wikipedia.org:8080  Permanent
+  Host    = 'Host';//    Host: en.wikipedia.org:8080  Permanent
   IfMatch = 'If-Match';//    If-Match: "737060cd8c284d8af7ad3082f209582d"  Permanent
   IfModifiedSince = 'If-Modified-Since';
   //    If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT  Permanent
@@ -50,22 +50,22 @@ const
   IfUnmodifiedSince = 'If-Unmodified-Since';
   //    If-Unmodified-Since: Sat, 29 Oct 1994 19:43:31 GMT  Permanent
   MaxForwards = 'Max-Forwards';//    Max-Forwards: 10  Permanent
-  Origin = 'Origin';//    Origin: http://www.example-social-network.com  Permanent: standard
+  Origin  = 'Origin';//    Origin: http://www.example-social-network.com  Permanent: standard
   pgradeInsecureRequests = 'pgrade-Insecure-Requests';//    Upgrade-Insecure-Requests: 1
-  Pragma = 'Pragma';//    Pragma: no-cache  Permanent
+  Pragma  = 'Pragma';//    Pragma: no-cache  Permanent
   ProxyAuthorization = 'Proxy-Authorization';
   //    Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==  Permanent
   ProxyConnection = 'Proxy-Connection';//    Proxy-Connection: keep-alive
-  Range = 'Range';//    Range: bytes=500-999  Permanent
+  Range   = 'Range';//    Range: bytes=500-999  Permanent
   Referer = 'Referer';//    Referer: http://en.wikipedia.org/wiki/Main_Page  Permanent
   SaveData = 'Save-Data';//    Save-Data: on
   SetCookie = 'Set-Cookie';
-  TE = 'TE';//    TE: trailers, deflate  Permanent
+  TE      = 'TE';//    TE: trailers, deflate  Permanent
   TransferEncoding = 'Transfer-Encoding';
   Upgrade = 'Upgrade';//    Upgrade: h2c, HTTPS/1.3, IRC/6.9, RTA/x11, websocket  Permanent
   UserAgent = 'User-Agent';
   //    User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0  Permanent
-  Via = 'Via';//    Via: 1.0 fred, 1.1 example.com (Apache/1.1)  Permanent
+  Via     = 'Via';//    Via: 1.0 fred, 1.1 example.com (Apache/1.1)  Permanent
   Warning = 'Warning';//    Warning: 199 Miscellaneous warning  Permanent
   XATTDeviceId = 'X-ATT-DeviceId';//    X-Att-Deviceid: GT-P7320/P7320XXLPG
   XCorrelationID = 'X-Correlation-ID';
@@ -76,14 +76,14 @@ const
   XHttpMethodOverride = 'X-Http-Method-Override';//    X-HTTP-Method-Override: DELETE
   XRequestedWith = 'X-Requested-With';//    X-Requested-With: XMLHttpRequest
   XRequestID = 'X-Request-ID';//    X-Request-ID: f058ebd6-02f7-4d3f-942e-904344e8cde5
-  XUIDH = 'X-UIDH';//    X-UIDH: ...
+  XUIDH   = 'X-UIDH';//    X-UIDH: ...
   XWapProfile = 'X-Wap-Profile';
 //    x-wap-profile: http://wap.samsungmobile.com/uaprof/SGH-I777.xml
 
 
 type
   TStringArray = array of string;
-  TSameSite = (Strict, Lax);
+  TSameSite    = (Strict, Lax);
   THTTPVersion = (http09, http10, http11, http20);
 
 type
@@ -91,7 +91,7 @@ type
 
   THTTPHeader = class
   private
-    FName: string;
+    FName:  string;
     FValue: string;
     function GetName: string;
     function GetValue: string;
@@ -109,7 +109,7 @@ type
 
   THTTPHeaderEnumerator = class
   protected
-    FList: THTTPHeaders;
+    FList:     THTTPHeaders;
     FPosition: int64;
   public
     constructor Create(aList: THTTPHeaders);
@@ -127,7 +127,7 @@ type
   THTTPHeaders = class
   protected
     FContainer: THttpHeaderList;
-    FLock: TRTLCriticalSection;
+    FLock:      TRTLCriticalSection;
   private
     function GetHeader(index: integer): THTTPHeader;
     procedure SetHeader(index: integer; AValue: THTTPHeader);
@@ -149,7 +149,7 @@ type
   THTTPMessage = class(TPersistent)
   protected
     FHeaders: THTTPHeaders;
-    FBody: TStream;
+    FBody:    TStream;
   protected
     function GetBody: TStream; virtual;
     procedure SetBody(AValue: TStream);
@@ -171,8 +171,8 @@ type
 
   THttpRequest = class(THTTPMessage)
   private
-    FMethod: string;
-    FURL: TURL;
+    FMethod:  string;
+    FURL:     TURL;
     FVersion: string;
     function GetMethod: string;
     function GetURL: TURL;
@@ -196,7 +196,7 @@ type
 
   TFormData = class
   private
-    FName: string;
+    FName:  string;
     FValue: string;
     procedure SetName(AValue: string);
     procedure SetValue(AValue: string);
@@ -240,8 +240,8 @@ type
   THttpResponse = class(THTTPMessage)
   private
     FReasonPhase: string;
-    FStatusCode: word;
-    FStatusLine: string;
+    FStatusCode:  word;
+    FStatusLine:  string;
     function GetReasonPhase: string;
     function GetStatusCode: word;
     function GetStatusLine: string;
@@ -262,9 +262,9 @@ type
   private
     Fautority: string;
     Ffragment: string;
-    Fpath: string;
+    Fpath:     string;
     FqueryString: string;
-    FScheme: string;
+    FScheme:   string;
     procedure Setautority(AValue: string);
     procedure Setfragment(AValue: string);
     procedure Setpath(AValue: string);
@@ -288,8 +288,8 @@ type
 
   TUrl = class(TUri)
   private
-    FHost: string;
-    FPort: word;
+    FHost:     string;
+    FPort:     word;
     FUserInfo: string;
     function GetAutority: string;
     procedure Sethost(AValue: string);
@@ -438,7 +438,7 @@ begin
   Result := '';
   if userInfo <> '' then
     Result += userInfo + '@';
-  Result += host;
+  Result   += host;
   if port <> 0 then
     Result += ':' + FPort.ToString;
 end;
@@ -469,15 +469,15 @@ var
   buffer: RawByteString;
 begin
   inherited Assign(auri);
-  FPort := 0;
-  FHost := '';
+  FPort     := 0;
+  FHost     := '';
   FUserInfo := '';
 
   if FAutority <> '' then
   begin
-    buffer := FAutority;
+    buffer    := FAutority;
     FAutority := '';
-    position := LastDelimiter('@', buffer);
+    position  := LastDelimiter('@', buffer);
     if position > 0 then
     begin
       FUserInfo := Copy(buffer, position + 1, Length(buffer));
@@ -493,7 +493,7 @@ begin
 
     if FUserInfo <> '' then
       FAutority += FUserInfo + '@';
-    FAutority += Fhost;
+    FAutority   += Fhost;
     if FPort <> 0 then
     begin
       Fautority += ':' + FPort.ToString;
@@ -513,7 +513,7 @@ begin
     Result += '?' + FQueryString;
   if FFragment <> '' then
     Result += '#' + FFragment;
-  Result := StringReplace(Result, '//', '/', [rfReplaceAll]);
+  Result   := StringReplace(Result, '//', '/', [rfReplaceAll]);
 end;
 
 procedure TUri.Setautority(AValue: string);
@@ -572,10 +572,10 @@ procedure TUri.Assign(auri: RawByteString);
 var
   position: integer;
 begin
-  position := Pos('://', auri);
+  position  := Pos('://', auri);
   Fautority := '';
-  FScheme := '';
-  Fpath := '';
+  FScheme   := '';
+  Fpath     := '';
   FqueryString := '';
   Ffragment := '';
   if position > 0 then
@@ -611,7 +611,7 @@ begin
     Result += scheme + '://';
   if Autority <> '' then
     Result += autority;
-  Result += getServerUrl;
+  Result   += getServerUrl;
 end;
 
 
@@ -620,7 +620,7 @@ end;
 constructor THTTPHeaderEnumerator.Create(aList: THTTPHeaders);
 begin
   inherited Create;
-  FList := AList;
+  FList     := AList;
   FPosition := -1;
 end;
 
@@ -700,7 +700,7 @@ begin
   SetString(aName, p, c - p);
   aValue := Copy(AHeader, (c - p + 2));
   aValue := Trim(aValue);
-  h := THTTPHeader.Create;
+  h      := THTTPHeader.Create;
   h.Value := Trim(aValue);
   h.Name := aName;
   try
@@ -879,8 +879,8 @@ constructor THttpRequest.Create;
 begin
   inherited Create;
   FVersion := '1.0';
-  FMethod := 'GET';
-  FURL := TUrl.Create;
+  FMethod  := 'GET';
+  FURL     := TUrl.Create;
 end;
 
 constructor THttpRequest.Create(aUri: string);
@@ -900,7 +900,7 @@ end;
 constructor THTTPMessage.Create;
 begin
   FHeaders := THTTPHeaders.Create;
-  FBody := TMemoryStream.Create;
+  FBody    := TMemoryStream.Create;
 end;
 
 destructor THTTPMessage.Destroy;
@@ -942,7 +942,7 @@ var
   idx: integer;
 begin
   Result := '';
-  idx := FHeaders.indexOf(Name);
+  idx    := FHeaders.indexOf(Name);
   if idx >= 0 then
     Result := FHeaders.Header[idx].Value;
 end;
