@@ -480,8 +480,8 @@ begin
     position  := LastDelimiter('@', buffer);
     if position > 0 then
     begin
-      FUserInfo := Copy(buffer, position + 1, Length(buffer));
-      Delete(buffer, 1, position + 1);
+      FUserInfo := Copy(buffer, 1, position - 1);
+      Delete(buffer, 1, position);
     end;
     position := LastDelimiter(':', buffer);
     if position > 0 then
@@ -693,7 +693,7 @@ var
 begin
   p := PChar(AHeader);
   c := p;
-  while c^ <> ':' do
+  while (c <> #0) and (c^ <> ':') do
   begin
     Inc(c);
   end;
