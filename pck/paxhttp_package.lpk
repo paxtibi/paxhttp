@@ -12,6 +12,12 @@
         <OtherUnitFiles Value="..\src"/>
         <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
+      <Linking>
+        <Debugging>
+          <UseHeaptrc Value="True"/>
+          <UseValgrind Value="True"/>
+        </Debugging>
+      </Linking>
     </CompilerOptions>
     <Description Value="HTTP Handler"/>
     <Version Release="1"/>
