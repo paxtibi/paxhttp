@@ -51,6 +51,8 @@
     <Linking>
       <Debugging>
         <UseHeaptrc Value="True"/>
+        <TrashVariables Value="True"/>
+        <StripSymbols Value="True"/>
       </Debugging>
     </Linking>
   </CompilerOptions>

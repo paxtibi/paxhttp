@@ -1,4 +1,5 @@
 program stoppableserver;
+
 {$D+}
 {$mode objfpc}{$H+}
 
@@ -19,6 +20,7 @@ type
   TStoppableServer = class(TCustomSlimHttpApplication)
   protected
     procedure DoServerStop(aReq: TRequest; aResp: TResponse; args: TStrings);
+    procedure DoECho(aReq: TRequest; aResp: TResponse; args: TStrings);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -35,11 +37,17 @@ var
     Application.Terminate;
   end;
 
+  procedure TStoppableServer.DoECho(aReq: TRequest; aResp: TResponse; args: TStrings);
+  begin
+    aResp.Content := args.Text;
+  end;
+
   {****************************************************************************}
   constructor TStoppableServer.Create(AOwner: TComponent);
   begin
     inherited Create(AOwner);
     AddRoute('GET', '/server-stop', @DoServerStop);
+    AddRoute('GET', '/echo/{message}', @DoEcho);
   end;
 
   {****************************************************************************}
@@ -57,4 +65,3 @@ begin
   Application.Free;
 end.
 {******************************************************************************}
-

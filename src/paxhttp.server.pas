@@ -1,5 +1,5 @@
 unit paxhttp.server;
-
+{$D+}
 {$mode objfpc}{$H+}
 
 interface

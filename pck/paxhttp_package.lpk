@@ -12,6 +12,11 @@
         <OtherUnitFiles Value="..\src"/>
         <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
+      <CodeGeneration>
+        <Checks>
+          <StackChecks Value="True"/>
+        </Checks>
+      </CodeGeneration>
       <Linking>
         <Debugging>
           <UseHeaptrc Value="True"/>
