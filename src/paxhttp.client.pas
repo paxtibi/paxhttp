@@ -86,7 +86,7 @@ type
   protected
     function performRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word; virtual;
   public
-    constructor Create;
+    constructor Create; virtual;
     destructor Destroy; override;
     procedure AbortRequest;
     function request(aRequest: THTTPRequest; var aResponse: THTTPResponse): word; virtual;
@@ -251,6 +251,7 @@ destructor TDefaultHTTPClient.Destroy;
 var
   idx: integer;
   m: TMiddleware;
+  e: TEncoder;
 begin
   disconnect;
   for idx := FPreprocessList.Count - 1 downto 0 do
@@ -265,6 +266,15 @@ begin
     FPostProcessList.Delete(idx);
     FreeAndNil(M);
   end;
+  for idx := FEncoders.Count - 1 downto 0 do
+  begin
+    e := FEncoders[idx];
+    FEncoders.Delete(idx);
+    FreeAndNil(e);
+  end;
+  FreeAndNil(FEncoders);
+  FreeAndNil(FPostProcessList);
+  FreeAndNil(FPreprocessList);
   FAjaxMiddleware := nil;
   inherited Destroy;
 end;
@@ -273,21 +283,17 @@ procedure TDefaultHTTPClient.sendRequest(aRequest: THTTPRequest; var aResponse: 
 var
   Buffer: string;
 begin
-  //TLogLogger.GetLogger('HTTP').Enter(self, 'sendRequest');
   Buffer      := prepareHeader(aRequest);
   FTerminated := False;
-  //TLogLogger.GetLogger('HTTP').Trace(Buffer);
   if not Terminated then
   begin
     FSocket.WriteBuffer(PChar(Buffer)^, Length(Buffer));
   end;
   if Assigned(aRequest.Body) and not Terminated then
   begin
-    //TLogLogger.GetLogger('HTTP').Trace(aRequest.Body);
     aRequest.Body.Position := 0;
     FSocket.CopyFrom(aRequest.Body, aRequest.Body.Size);
   end;
-  //TLogLogger.GetLogger('HTTP').Leave(self, 'sendRequest');
 end;
 
 function TDefaultHTTPClient.ReadString(out StringResult: string): boolean;
@@ -567,7 +573,6 @@ var
   ResponseStatusCode: word;
   Result: boolean;
 begin
-  //TLogLogger.GetLogger('HTTP').Enter(self, 'receiveResponse');
   resetResponse(aResponse);
   SetLength(FBuffer, 0);
   ResponseStatusCode := ReadResponseHeaders(aResponse);
@@ -604,8 +609,6 @@ begin
     end;
   end;
   aResponse.Body.Seek(0, 0);
-  //TLogLogger.GetLogger('HTTP').Trace(aResponse.Body);
-  //TLogLogger.GetLogger('HTTP').Leave(self, 'receiveResponse');
 end;
 
 procedure TDefaultHTTPClient.resetResponse(var aResponse: THTTPResponse);

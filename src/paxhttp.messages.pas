@@ -865,6 +865,7 @@ end;
 
 procedure THttpRequest.SetURL(AValue: TURL);
 begin
+  FreeAndnil(FURL);
   FURL := AValue;
 end;
 
