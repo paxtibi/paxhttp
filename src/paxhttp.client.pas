@@ -630,21 +630,30 @@ var
   middleware: TMiddleware;
   args: TStrings;
 begin
-  args := TStringList.Create;
-  connect(aRequest.URL.Host, aRequest.URL.Port, isSSL(aRequest.URL.Scheme));
-  repeat
-    for middleware in FPreprocessList do
-      middleware.process(self, aRequest, aResponse, args);
-    sendRequest(aRequest, aResponse);
-    receiveResponse(aRequest, aResponse);
-    for middleware in FPostProcessList do
-      middleware.process(self, aRequest, aResponse, args);
-    loop := FRedirect.active and (aResponse.StatusLine <> '');
-    if loop then
-    begin
-      loop := isRedirectStatus(aResponse.StatusCode);
+  try
+    args := TStringList.Create;
+    try
+      connect(aRequest.Url.Host, aRequest.Url.Port, isSSL(aRequest.Url.Scheme));
+    except
+      raise;
     end;
-  until not loop;
+    repeat
+      for middleware in FPreprocessList do
+        middleware.process(self, aRequest, aResponse, args);
+      sendRequest(aRequest, aResponse);
+      receiveResponse(aRequest, aResponse);
+      for middleware in FPostProcessList do
+        middleware.process(self, aRequest, aResponse, args);
+      loop := FRedirect.active and (aResponse.StatusLine <> '');
+      if loop then
+      begin
+        loop := isRedirectStatus(aResponse.StatusCode);
+      end;
+    until not loop;
+  except
+    FreeAndNil(args);
+    raise;
+  end;
   FreeAndNil(args);
   Result := aResponse.StatusCode;
   disconnect;
@@ -657,30 +666,39 @@ var
   args: TStrings;
 begin
   args := TStringList.Create;
-  repeat
-    connect(aRequest.Url.Host, aRequest.Url.Port, isSSL(aRequest.Url.Scheme));
-    for middleware in FPreprocessList do
-    begin
-      if middleware.active then
-        middleware.process(self, aRequest, aResponse, args);
-    end;
-    sendRequest(aRequest, aResponse);
-    receiveResponse(aRequest, aResponse);
-    for middleware in FPostProcessList do
-    begin
-      if middleware.active then
-        middleware.process(self, aRequest, aResponse, args);
-    end;
+  try
+    repeat
+      try
+        connect(aRequest.Url.Host, aRequest.Url.Port, isSSL(aRequest.Url.Scheme));
+      except
+        raise;
+      end;
+      for middleware in FPreprocessList do
+      begin
+        if middleware.active then
+          middleware.process(self, aRequest, aResponse, args);
+      end;
+      sendRequest(aRequest, aResponse);
+      receiveResponse(aRequest, aResponse);
+      for middleware in FPostProcessList do
+      begin
+        if middleware.active then
+          middleware.process(self, aRequest, aResponse, args);
+      end;
 
-    loop := FRedirect.active and (aResponse.StatusLine <> '');
-    if loop and SameText(aResponse.getHeader('Connection'), 'close') then
-      loop := False;
-    if loop then
-    begin
-      loop := isRedirectStatus(aResponse.StatusCode);
-    end;
-    disconnect;
-  until not loop;
+      loop := FRedirect.active and (aResponse.StatusLine <> '');
+      if loop and SameText(aResponse.getHeader('Connection'), 'close') then
+        loop := False;
+      if loop then
+      begin
+        loop := isRedirectStatus(aResponse.StatusCode);
+      end;
+      disconnect;
+    until not loop;
+  except
+    FreeAndNil(args);
+    raise;
+  end;
   FreeAndNil(args);
   Result := aResponse.StatusCode;
 end;
