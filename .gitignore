@@ -3,3 +3,5 @@ lib
 /demos/bin
 *.lps
 /bin/*
+backup
+libraries

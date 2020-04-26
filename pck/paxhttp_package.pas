@@ -9,7 +9,8 @@ interface
 
 uses
   paxhttp.client, paxhttp.encoders, paxhttp.Messages, paxhttp.middlewares, 
-  paxhttp.server, paxhttp.server.sessions, paxhttp.jwt, LazarusPackageIntf;
+  paxhttp.server, paxhttp.server.sessions, paxhttp.jwt, paxhttp.jwt.claims, 
+  LazarusPackageIntf;
 
 implementation
 

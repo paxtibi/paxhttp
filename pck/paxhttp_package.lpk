@@ -10,7 +10,7 @@
       <PathDelim Value="\"/>
       <SearchPaths>
         <OtherUnitFiles Value="..\src"/>
-        <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
+        <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)\fpc-$(FPC_FULLVERSION)"/>
       </SearchPaths>
       <CodeGeneration>
         <Checks>
@@ -26,7 +26,7 @@
     </CompilerOptions>
     <Description Value="HTTP Handler"/>
     <Version Release="1"/>
-    <Files Count="7">
+    <Files Count="8">
       <Item1>
         <Filename Value="..\src\paxhttp.client.pas"/>
         <UnitName Value="paxhttp.client"/>
@@ -55,6 +55,10 @@
         <Filename Value="..\src\paxhttp.jwt.pas"/>
         <UnitName Value="paxhttp.jwt"/>
       </Item7>
+      <Item8>
+        <Filename Value="..\src\paxhttp.jwt.claims.pas"/>
+        <UnitName Value="paxhttp.jwt.claims"/>
+      </Item8>
     </Files>
     <RequiredPkgs Count="1">
       <Item1>

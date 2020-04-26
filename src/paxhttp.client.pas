@@ -39,7 +39,7 @@ type
   end;
 
   TMiddlewareList = specialize TFPGList<TMiddleware>;
-  TEncoderList    = specialize TFPGList<TEncoder>;
+  TEncoderList = specialize TFPGList<TEncoder>;
 
 
   { TDefaultHTTPClient }
@@ -49,23 +49,23 @@ type
     FAjaxMiddleware: TMiddleware;
     FAuthorization: TAuthorizationMiddleware;
     FKeepAlive: boolean;
-    FProxy:    TAuthorizationMiddleware;
+    FProxy: TAuthorizationMiddleware;
     FRedirect: TMiddleware;
     function GetAjax: boolean;
     procedure SetAjax(AValue: boolean);
     procedure SetKeepAlive(AValue: boolean);
     procedure SetTimeOut(AValue: int64);
   protected
-    FSocket:      TInetSocket;
+    FSocket: TInetSocket;
     FCurrentHandler: TSocketHandler;
-    FTimeOut:     int64;
+    FTimeOut: int64;
     FKeepConnection: boolean;
     FHeadersOnly: boolean;
-    FTerminated:  boolean;
-    FBuffer:      ansistring;
+    FTerminated: boolean;
+    FBuffer: ansistring;
     FPreprocessList: TMiddlewareList;
     FPostProcessList: TMiddlewareList;
-    FEncoders:    TEncoderList;
+    FEncoders: TEncoderList;
   protected
     function ParseStatusLine(var AResponse: THTTPResponse; AStatusLine: string): integer;
     function ReadResponseHeaders(var AResponse: THTTPResponse): integer;
@@ -84,12 +84,14 @@ type
     function processKeepAliveRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
     function getServerUrl(ARequest: THTTPRequest): string;
   protected
-    function performRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word; virtual;
+    function performRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
+      virtual;
   public
     constructor Create; virtual;
     destructor Destroy; override;
     procedure AbortRequest;
-    function request(aRequest: THTTPRequest; var aResponse: THTTPResponse): word; virtual;
+    function request(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
+      virtual;
     procedure addPostProcessMiddleware(aMiddleware: TMiddleware);
     procedure addPreProcessMiddleware(aMiddleware: TMiddleware);
     procedure removePostProcessMiddleware(aMiddleware: TMiddleware);
@@ -107,8 +109,17 @@ type
 implementation
 
 uses
-  base64, paxhttp.middlewares  {$if not defined(hasamiga)}
-  , sslsockets
+  base64, paxhttp.middlewares
+  {$if not defined(hasamiga)}
+  , sslsockets, openssl
+  {$IF FPC_FULLVERSION>=30200}
+  , sslbase
+  {$IFNDEF USEGNUTLS}
+  , fpopenssl, opensslsockets
+  {$else}
+  , gnutls, gnutlssockets
+  {$endif}
+  {$endif}
 {$endif} ;
 
 { TAuthorizationMiddleware }
@@ -151,10 +162,19 @@ begin
   if (Result = nil) then
   {$if not defined(HASAMIGA)}
     if UseSSL then
-      Result := TSSLSocketHandler.Create
+    begin
+      InitSSLInterface;
+      {$IF FPC_FULLVERSION>=30200}
+      Result := TSSLSocketHandler.GetDefaultHandler;
+     {$else}
+      Result := TSSLSocketHandler.Create;
+      {$EndIf}
+    end
     else
   {$endif}
+    begin
       Result := TSocketHandler.Create;
+    end;
   FCurrentHandler := Result;
 end;
 
@@ -220,8 +240,8 @@ end;
 
 constructor TDefaultHTTPClient.Create;
 begin
-  FSocket     := nil;
-  FTimeOut    := -1;
+  FSocket := nil;
+  FTimeOut := -1;
   FKeepConnection := True;
   FTerminated := False;
   FPostProcessList := TMiddlewareList.Create;
@@ -283,7 +303,7 @@ procedure TDefaultHTTPClient.sendRequest(aRequest: THTTPRequest; var aResponse: 
 var
   Buffer: string;
 begin
-  Buffer      := prepareHeader(aRequest);
+  Buffer := prepareHeader(aRequest);
   FTerminated := False;
   if not Terminated then
   begin
@@ -321,7 +341,7 @@ var
   P, L: integer;
 begin
   StringResult := '';
-  Result  := False;
+  Result := False;
   CheckLF := False;
   repeat
     if Length(FBuffer) = 0 then
@@ -375,7 +395,7 @@ begin
   if (P = 0) then
     P := Pos(#9, S);
   if (P = 0) then
-    P    := Length(S) + 1;
+    P := Length(S) + 1;
   Result := Copy(S, 1, P - 1);
   Delete(S, 1, P);
 end;
@@ -413,7 +433,7 @@ begin
   if (Copy(S, 1, 5) <> 'HTTP/') then
     raise EHTTPNetworkInvalidProtocolException.CreateFmt('%s', [S]);
   System.Delete(S, 1, 5);
-  S      := GetNextWord(AStatusLine);
+  S := GetNextWord(AStatusLine);
   Result := StrToIntDef(S, -1);
   AResponse.StatusCode := word(Result);
   if Result = -1 then
@@ -765,4 +785,3 @@ begin
 end;
 
 end.
-

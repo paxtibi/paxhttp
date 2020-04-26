@@ -7,11 +7,12 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   Classes,
   SysUtils,
   paxhttp.client,
-  paxhttp.messages,
+  paxhttp.Messages,
+  fpwebclient,
   CustApp { you can add units after this };
 
 const
-  url: string = 'http://www.google.com/';
+  url: string = 'https://www.google.com/';
 type
 
   { TGetDemo }
@@ -32,7 +33,7 @@ type
     client: TDefaultHTTPClient;
     FRequest: THttpRequest;
     FResponse: THttpResponse;
-    outputString: string;
+    outputString: string = '';
   begin
     client := TDefaultHTTPClient.Create;
     FResponse := THttpResponse.Create;
