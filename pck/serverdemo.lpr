@@ -23,6 +23,7 @@ var
 begin
   Application := TCustomSlimHttpApplication.Create(nil);
   Application.Title := 'ServerDemo';
+  Application.Port:= 81;
 
   Application.AddRoute('get', '/', @HandleIndex);
   Application.Run;

@@ -73,7 +73,7 @@ type
     function GetSocketHandler(const UseSSL: boolean): TSocketHandler; virtual;
     procedure connect(AHost: string; aPort: word; UseSSL: boolean);
     procedure disconnect;
-    function prepareHeader(aRequest: THTTPRequest): string;
+    function prepareHeader(aRequest: THTTPRequest): string;  virtual;
     procedure handleKeepConnection(var aRequest: THTTPRequest);
     function Terminated: boolean;
     procedure sendRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse); virtual;

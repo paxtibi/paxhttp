@@ -1,6 +1,7 @@
 unit paxhttp.server;
 {$D+}
 {$mode objfpc}{$H+}
+{$codepage UTF8}
 
 interface
 
@@ -391,6 +392,7 @@ end;
 class function TRouteContainer.produceParameters(AInputStr: string): TStringList;
 var
   regExp: TRegExpr;
+  splitter : TStringList;
 begin
   Result := TStringList.Create;
   RegExp := TRegExpr.Create(regString);
@@ -406,7 +408,11 @@ begin
         end
         else
         begin
-          Result.add(Match[2].Split(':')[0]);
+          splitter := TStringList.Create();
+          splitter.Text:=Match[2];
+          splitter.LineBreak := ':';
+          Result.add(splitter[1]);
+          FreeAndNil(splitter);
         end;
       until not ExecNext;
     end;
