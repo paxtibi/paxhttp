@@ -7,7 +7,7 @@ uses
   Classes, SysUtils, paxhttp.Messages, paxhttp.encoders, ssockets, fgl;
 
 const
-  ReadBufLen = 1024 * 10;
+  ReadBufLen = 1024 * 1024;
 
 type
   TDefaultHTTPClient = class;
@@ -73,7 +73,7 @@ type
     function GetSocketHandler(const UseSSL: boolean): TSocketHandler; virtual;
     procedure connect(AHost: string; aPort: word; UseSSL: boolean);
     procedure disconnect;
-    function prepareHeader(aRequest: THTTPRequest): string;  virtual;
+    function prepareHeader(aRequest: THTTPRequest): string; virtual;
     procedure handleKeepConnection(var aRequest: THTTPRequest);
     function Terminated: boolean;
     procedure sendRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse); virtual;
@@ -84,14 +84,12 @@ type
     function processKeepAliveRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
     function getServerUrl(ARequest: THTTPRequest): string;
   protected
-    function performRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
-      virtual;
+    function performRequest(aRequest: THTTPRequest; var aResponse: THTTPResponse): word; virtual;
   public
     constructor Create; virtual;
     destructor Destroy; override;
     procedure AbortRequest;
-    function request(aRequest: THTTPRequest; var aResponse: THTTPResponse): word;
-      virtual;
+    function request(aRequest: THTTPRequest; var aResponse: THTTPResponse): word; virtual;
     procedure addPostProcessMiddleware(aMiddleware: TMiddleware);
     procedure addPreProcessMiddleware(aMiddleware: TMiddleware);
     procedure removePostProcessMiddleware(aMiddleware: TMiddleware);
@@ -504,7 +502,7 @@ procedure TDefaultHTTPClient.receiveResponse(aRequest: THTTPRequest; var aRespon
       Result := Cnt > 0;
     end;
 
-    function ReadData(Data: PByte; Cnt: integer): integer;
+    function ReadData(Data: pbyte; Cnt: integer): integer;
     var
       l: integer;
     begin

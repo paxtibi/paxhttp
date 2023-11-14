@@ -6,7 +6,7 @@ unit paxhttp.server;
 interface
 
 uses
-  fgl, Classes, SysUtils, custhttpapp, custweb, HTTPDefs, RegExpr, fphttpserver;
+  fgl, Classes, SysUtils, custhttpapp, custweb, fphttp, HTTPDefs, RegExpr, fphttpserver, iniwebsession;
 
 type
   TRouteProcedure = procedure(aReq: TRequest; aResp: TResponse; args: TStrings);
@@ -179,10 +179,8 @@ type
 
 procedure defaultFavIcon(aReq: TRequest; aResp: TResponse; args: TStrings);
 
-implementation
 
-uses
-  fphttp;
+implementation
 
 const
   RegString = '(\[?\/?\{([\w_][\w\d_-]*|[\w_][\w\d_-]*(:"(.*)"))\}\]?)';
@@ -392,7 +390,7 @@ end;
 class function TRouteContainer.produceParameters(AInputStr: string): TStringList;
 var
   regExp: TRegExpr;
-  splitter : TStringList;
+  splitter: TStringList;
 begin
   Result := TStringList.Create;
   RegExp := TRegExpr.Create(regString);
@@ -409,9 +407,9 @@ begin
         else
         begin
           splitter := TStringList.Create();
-          splitter.Text:=Match[2];
+          splitter.Text := Match[2];
           splitter.LineBreak := ':';
-          Result.add(splitter[1]);
+          Result.add(splitter[0]);
           FreeAndNil(splitter);
         end;
       until not ExecNext;

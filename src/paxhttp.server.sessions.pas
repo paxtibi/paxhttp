@@ -23,8 +23,8 @@ type
     procedure FreeIniFile;
     procedure CheckSession;
     function GetSessionID: string; override;
-    function GetSessionVariable(VarName: string): string; override;
-    procedure SetSessionVariable(VarName: string; const AValue: string); override;
+    function GetSessionVariable(const VarName : String): string; override;
+    procedure SetSessionVariable(const VarName: string; const AValue: string); override;
     property Cached: boolean read FCached write FCached;
     property SessionDir: string read FSessionDir write FSessionDir;
     property ServerFile: TMemIniFile read FServerFile write FServerFile;
@@ -35,7 +35,7 @@ type
     procedure InitSession(ARequest: TRequest; OnNewSession, OnExpired: TNotifyEvent);
       override;
     procedure InitResponse(AResponse: TResponse); override;
-    procedure RemoveVariable(VariableName: string); override;
+    procedure RemoveVariable(const VariableName: string); override;
     function GetSessionDir: string;
     function isStarted: boolean;
     function start(ARequest: TRequest; ARsponse: TResponse;
@@ -302,13 +302,14 @@ begin
       raise EWebSessionError.Create(SErrNoSession);
 end;
 
-function TSlimSession.GetSessionVariable(VarName: string): string;
+function TSlimSession.GetSessionVariable(const VarName: String): string;
 begin
   CheckSession;
   Result := FServerFile.ReadString(SData, VarName, '');
 end;
 
-procedure TSlimSession.SetSessionVariable(VarName: string; const AValue: string);
+procedure TSlimSession.SetSessionVariable(const VarName: string;
+  const AValue: string);
 begin
   CheckSession;
   FServerFile.WriteString(SData, VarName, AValue);
@@ -414,7 +415,7 @@ begin
   end;
 end;
 
-procedure TSlimSession.RemoveVariable(VariableName: string);
+procedure TSlimSession.RemoveVariable(const VariableName: string);
 begin
   CheckSession;
   FServerFile.DeleteKey(SData, VariableName);
