@@ -37,3 +37,4 @@ notifications:
   email:
     on_success: false
     on_failure: change
+
